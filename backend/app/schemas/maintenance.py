@@ -1,33 +1,58 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
-from app.enums.fleet import MaintenanceStatus
+from app.enums.fleet import MaintenanceStatus, MaintenanceType, MaintenancePriority
+from app.schemas.vehicle import VehicleResponse
 
 class MaintenanceRecordBase(BaseModel):
     vehicle_id: uuid.UUID
-    maintenance_type: Optional[str] = None
+    maintenance_type: MaintenanceType
+    priority: MaintenancePriority = MaintenancePriority.MEDIUM
     description: Optional[str] = None
-    cost: Optional[float] = None
     workshop_name: Optional[str] = None
-    start_date: Optional[datetime] = None
-    end_date: Optional[datetime] = None
+    mechanic_name: Optional[str] = None
+    invoice_number: Optional[str] = None
+    remarks: Optional[str] = None
+    estimated_cost: Optional[float] = Field(None, ge=0)
+    actual_cost: Optional[float] = Field(None, ge=0)
+    start_date: datetime
+    expected_completion: Optional[datetime] = None
+    completed_date: Optional[datetime] = None
+    next_service_due: Optional[datetime] = None
     status: MaintenanceStatus = MaintenanceStatus.OPEN
+
+class MaintenanceRecordCreate(BaseModel):
+    vehicle_id: uuid.UUID
+    maintenance_type: MaintenanceType
+    priority: MaintenancePriority = MaintenancePriority.MEDIUM
+    description: Optional[str] = None
+    workshop_name: Optional[str] = None
+    estimated_cost: Optional[float] = Field(None, ge=0)
+    start_date: datetime
+    expected_completion: Optional[datetime] = None
     next_service_due: Optional[datetime] = None
 
-class MaintenanceRecordCreate(MaintenanceRecordBase):
-    pass
-
 class MaintenanceRecordUpdate(BaseModel):
-    vehicle_id: Optional[uuid.UUID] = None
-    maintenance_type: Optional[str] = None
+    maintenance_type: Optional[MaintenanceType] = None
+    priority: Optional[MaintenancePriority] = None
     description: Optional[str] = None
-    cost: Optional[float] = None
     workshop_name: Optional[str] = None
+    mechanic_name: Optional[str] = None
+    invoice_number: Optional[str] = None
+    remarks: Optional[str] = None
+    estimated_cost: Optional[float] = Field(None, ge=0)
     start_date: Optional[datetime] = None
-    end_date: Optional[datetime] = None
+    expected_completion: Optional[datetime] = None
+    next_service_due: Optional[datetime] = None
     status: Optional[MaintenanceStatus] = None
+
+class MaintenanceCompleteUpdate(BaseModel):
+    actual_cost: float = Field(..., ge=0)
+    mechanic_name: Optional[str] = None
+    invoice_number: Optional[str] = None
+    remarks: Optional[str] = None
     next_service_due: Optional[datetime] = None
 
 class MaintenanceRecordResponse(MaintenanceRecordBase):
@@ -37,6 +62,5 @@ class MaintenanceRecordResponse(MaintenanceRecordBase):
     created_at: datetime
     updated_at: datetime
 
-class MaintenanceRecordListResponse(BaseModel):
-    items: list[MaintenanceRecordResponse]
-    total: int
+class MaintenanceRecordDetailResponse(MaintenanceRecordResponse):
+    vehicle: Optional[VehicleResponse] = None

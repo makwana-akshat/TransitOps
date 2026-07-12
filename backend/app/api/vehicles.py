@@ -8,7 +8,9 @@ from app.dependencies.auth import get_current_active_user, require_fleet_manager
 from app.models.user import User
 from app.schemas.vehicle import VehicleCreate, VehicleUpdate, VehicleResponse, VehicleStatusUpdate
 from app.schemas.common import ApiResponse, PaginatedResponse
+from app.schemas.maintenance import MaintenanceRecordResponse
 from app.services.vehicle_service import VehicleService
+from app.services.maintenance_service import MaintenanceService
 
 router = APIRouter(prefix="/api/vehicles", tags=["Vehicles"])
 
@@ -49,11 +51,21 @@ async def get_vehicles(
 @router.get("/{id}", response_model=ApiResponse[VehicleResponse])
 async def get_vehicle(
     id: uuid.UUID,
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(require_staff),
     service: VehicleService = Depends(get_vehicle_service)
 ):
     vehicle = await service.get_vehicle_by_id(id)
     return ApiResponse(success=True, message="Vehicle retrieved successfully.", data=vehicle)
+
+@router.get("/{id}/maintenance-history", response_model=ApiResponse[list[MaintenanceRecordResponse]])
+async def get_vehicle_maintenance_history(
+    id: uuid.UUID,
+    current_user: User = Depends(require_staff),
+    db: AsyncSession = Depends(get_db)
+):
+    service = MaintenanceService(db)
+    records = await service.get_history_by_vehicle(id)
+    return ApiResponse(success=True, message="Vehicle maintenance history retrieved.", data=records)
 
 @router.put("/{id}", response_model=ApiResponse[VehicleResponse])
 async def update_vehicle(
