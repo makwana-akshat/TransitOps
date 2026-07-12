@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const { requireAuth, requirePermission } = require('../middleware/clerk');
-const controller = require('../controllers/vehiclesController');
+const controller = require('../controllers/rolesController');
 
 // All routes require auth as a baseline
 router.use(requireAuth);
