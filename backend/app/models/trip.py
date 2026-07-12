@@ -42,6 +42,11 @@ class Trip(Base, UUIDMixin, TimestampMixin):
     notes: Mapped[str | None] = mapped_column(String, nullable=True)
     
     created_by: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    
+    # Cumulative Cost Fields (Updated by services)
+    trip_fuel_cost: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
+    trip_expenses: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
+    trip_operational_cost: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
 
     __table_args__ = (
         CheckConstraint('cargo_weight >= 0', name='check_cargo_weight_nonnegative'),

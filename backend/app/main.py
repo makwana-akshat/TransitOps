@@ -11,6 +11,8 @@ from app.api.vehicles import router as vehicles_router
 from app.api.drivers import router as drivers_router
 from app.api.trips import router as trips_router
 from app.api.maintenance import router as maintenance_router
+from app.api.fuel_logs import router as fuel_logs_router
+from app.api.expenses import router as expenses_router
 
 # Configure logging
 setup_logging(debug=settings.debug)
@@ -56,6 +58,8 @@ def create_app() -> FastAPI:
     app.include_router(drivers_router)
     app.include_router(trips_router)
     app.include_router(maintenance_router)
+    app.include_router(fuel_logs_router)
+    app.include_router(expenses_router)
     app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
     app.include_router(users_router, prefix="/api/users", tags=["users"])
     @app.on_event("startup")

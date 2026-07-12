@@ -36,6 +36,12 @@ class Vehicle(Base, UUIDMixin, TimestampMixin):
     
     created_by: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     deleted_at: Mapped[datetime | None] = mapped_column(nullable=True)
+    
+    # Cumulative Cost Fields (Updated by triggers/services)
+    total_fuel_cost: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
+    total_maintenance_cost: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
+    total_other_expenses: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
+    total_operational_cost: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
 
     __table_args__ = (
         CheckConstraint('capacity_kg > 0', name='check_capacity_kg_positive'),

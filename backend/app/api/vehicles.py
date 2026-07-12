@@ -9,6 +9,7 @@ from app.models.user import User
 from app.schemas.vehicle import VehicleCreate, VehicleUpdate, VehicleResponse, VehicleStatusUpdate
 from app.schemas.common import ApiResponse, PaginatedResponse
 from app.schemas.maintenance import MaintenanceRecordResponse
+from app.schemas.expense import VehicleCostSummaryResponse
 from app.services.vehicle_service import VehicleService
 from app.services.maintenance_service import MaintenanceService
 
@@ -66,6 +67,29 @@ async def get_vehicle_maintenance_history(
     service = MaintenanceService(db)
     records = await service.get_history_by_vehicle(id)
     return ApiResponse(success=True, message="Vehicle maintenance history retrieved.", data=records)
+
+@router.get("/{id}/cost-summary", response_model=ApiResponse[VehicleCostSummaryResponse])
+async def get_vehicle_cost_summary(
+    id: uuid.UUID,
+    current_user: User = Depends(require_staff),
+    service: VehicleService = Depends(get_vehicle_service)
+):
+    vehicle = await service.get_vehicle_by_id(id)
+    
+    avg_cost = 0.0
+    if vehicle.current_odometer > 0:
+        avg_cost = vehicle.total_operational_cost / vehicle.current_odometer
+        
+    summary = {
+        "vehicle_id": vehicle.id,
+        "lifetime_fuel_cost": vehicle.total_fuel_cost,
+        "lifetime_maintenance_cost": vehicle.total_maintenance_cost,
+        "lifetime_other_expenses": vehicle.total_other_expenses,
+        "lifetime_operational_cost": vehicle.total_operational_cost,
+        "average_cost_per_km": round(avg_cost, 2)
+    }
+    
+    return ApiResponse(success=True, message="Vehicle cost summary retrieved.", data=summary)
 
 @router.put("/{id}", response_model=ApiResponse[VehicleResponse])
 async def update_vehicle(

@@ -46,9 +46,29 @@ class MaintenancePriority(str, enum.Enum):
     CRITICAL = "CRITICAL"
 
 class ExpenseType(str, enum.Enum):
-    TOLL = "TOLL"
-    PARKING = "PARKING"
-    REPAIR = "REPAIR"
-    MAINTENANCE = "MAINTENANCE"
-    FUEL = "FUEL"
-    OTHER = "OTHER"
+    FUEL = "Fuel"
+    MAINTENANCE = "Maintenance"
+    REPAIR = "Repair"
+    TOLL = "Toll"
+    PARKING = "Parking"
+    INSURANCE = "Insurance"
+    REGISTRATION = "Registration"
+    TYRES = "Tyres"
+    BATTERY = "Battery"
+    CLEANING = "Cleaning"
+    MISCELLANEOUS = "Miscellaneous"
+
+class FuelType(str, enum.Enum):
+    DIESEL = "Diesel"
+    PETROL = "Petrol"
+    CNG = "CNG"
+    ELECTRIC = "Electric"
+    HYBRID = "Hybrid"
+    OTHER = "Other"
+
+class PaymentMethod(str, enum.Enum):
+    CASH = "Cash"
+    CARD = "Card"
+    UPI = "UPI"
+    COMPANY_ACCOUNT = "Company Account"
+    OTHER = "Other"
