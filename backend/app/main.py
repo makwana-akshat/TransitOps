@@ -43,9 +43,13 @@ def create_app() -> FastAPI:
             content={"detail": "Internal Server Error"},
         )
 
+    from app.api.auth import router as auth_router
+    from app.api.users import router as users_router
+    
     # Include routers
     app.include_router(health_router)
-
+    app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
+    app.include_router(users_router, prefix="/api/users", tags=["users"])
     @app.on_event("startup")
     async def on_startup():
         logger.info("application_startup", app_name=settings.app_name, debug=settings.debug)

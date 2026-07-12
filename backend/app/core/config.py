@@ -7,11 +7,11 @@ class Settings(BaseSettings):
     # Database Configuration (e.g. postgresql+psycopg://...)
     supabase_db_url: str
     
-    # Auth (Clerk) Config - for future use
-    clerk_secret_key: str | None = None
-    clerk_publishable_key: str | None = None
-    jwt_audience: str | None = None
-    jwt_issuer: str | None = None
+    # Auth (Clerk) Config
+    clerk_secret_key: str
+    clerk_publishable_key: str
+    clerk_jwt_audience: str
+    clerk_jwt_issuer: str
 
     model_config = SettingsConfigDict(
         env_file=".env",
