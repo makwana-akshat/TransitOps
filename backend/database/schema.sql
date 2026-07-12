@@ -1,28 +1,56 @@
 -- Roles table
 CREATE TABLE roles (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(50) UNIQUE NOT NULL
+    name VARCHAR(50) UNIQUE NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-INSERT INTO roles (name) VALUES 
-('Admin'), 
-('Fleet Manager'), 
-('Driver'), 
-('Safety Officer'), 
-('Financial Analyst');
+INSERT INTO roles (name, description) VALUES 
+('Admin', 'Administrator with full access'), 
+('Fleet Manager', 'Manages vehicles and trips'), 
+('Driver', 'Vehicle operator'), 
+('Safety Officer', 'Handles compliance and safety'), 
+('Financial Analyst', 'Handles expenses and reporting');
+
+-- Permissions table
+CREATE TABLE permissions (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL,
+    description TEXT,
+    module VARCHAR(50),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Role Permissions table
+CREATE TABLE role_permissions (
+    role_id INTEGER REFERENCES roles(id) ON DELETE CASCADE,
+    permission_id INTEGER REFERENCES permissions(id) ON DELETE CASCADE,
+    PRIMARY KEY (role_id, permission_id)
+);
 
 -- Users table
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     clerk_id VARCHAR(255) UNIQUE NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
-    first_name VARCHAR(100),
-    last_name VARCHAR(100),
+    full_name VARCHAR(200),
+    phone VARCHAR(50),
+    avatar_url TEXT,
     role_id INTEGER REFERENCES roles(id) ON DELETE SET NULL,
+    employee_code VARCHAR(100) UNIQUE,
+    department VARCHAR(100),
+    status VARCHAR(50) DEFAULT 'Pending', -- Pending, Active, Suspended, Inactive
+    last_login TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     deleted_at TIMESTAMP WITH TIME ZONE
 );
+
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_clerk_id ON users(clerk_id);
+CREATE INDEX idx_users_role ON users(role_id);
+CREATE INDEX idx_users_status ON users(status);
 
 -- Vehicles table
 CREATE TABLE vehicles (
@@ -153,8 +181,10 @@ CREATE TABLE audit_logs (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID REFERENCES users(id) ON DELETE SET NULL,
     action VARCHAR(255) NOT NULL,
-    entity_type VARCHAR(100) NOT NULL,
+    entity VARCHAR(100) NOT NULL,
     entity_id UUID,
-    details JSONB,
+    metadata JSONB,
+    ip_address VARCHAR(45),
+    device TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

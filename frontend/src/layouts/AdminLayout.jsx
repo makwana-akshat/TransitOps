@@ -1,64 +1,38 @@
 import React from 'react';
 import { Outlet, Navigate, Link } from 'react-router-dom';
 import { useAuth, UserButton } from '@clerk/clerk-react';
-import { 
-  LayoutDashboard, 
-  Truck, 
-  Users, 
-  Map, 
-  Wrench, 
-  Fuel, 
-  DollarSign, 
-  BarChart, 
-  Shield 
-} from 'lucide-react';
+import { Truck } from 'lucide-react';
+import { NavigationGenerator } from '../components/NavigationGenerator';
+import { useAppAuth } from '../context/AuthContext';
 
 const AdminLayout = () => {
   const { isLoaded, isSignedIn } = useAuth();
+  const { role, authLoading } = useAppAuth();
 
-  if (!isLoaded) return <div className="flex h-screen items-center justify-center">Loading...</div>;
+  if (!isLoaded || authLoading) return <div className="flex h-screen items-center justify-center text-muted-foreground">Loading workspace...</div>;
   if (!isSignedIn) return <Navigate to="/login" replace />;
-
-  const navItems = [
-    { name: 'Dashboard', path: '/', icon: <LayoutDashboard className="h-4 w-4" /> },
-    { name: 'Vehicles', path: '/vehicles', icon: <Truck className="h-4 w-4" /> },
-    { name: 'Drivers', path: '/drivers', icon: <Users className="h-4 w-4" /> },
-    { name: 'Trips', path: '/trips', icon: <Map className="h-4 w-4" /> },
-    { name: 'Maintenance', path: '/maintenance', icon: <Wrench className="h-4 w-4" /> },
-    { name: 'Fuel', path: '/fuel', icon: <Fuel className="h-4 w-4" /> },
-    { name: 'Expenses', path: '/expenses', icon: <DollarSign className="h-4 w-4" /> },
-    { name: 'Reports', path: '/reports', icon: <BarChart className="h-4 w-4" /> },
-    { name: 'Users', path: '/users', icon: <Shield className="h-4 w-4" /> },
-  ];
+  if (role !== 'Admin') return <Navigate to="/unauthorized" replace />;
 
   return (
-    <div className="flex min-h-screen w-full bg-muted/40">
+    <div className="flex min-h-screen w-full bg-muted/20">
       <aside className="fixed inset-y-0 left-0 z-10 hidden w-64 flex-col border-r bg-background sm:flex">
         <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
-          <Link to="/" className="flex items-center gap-2 font-semibold">
+          <Link to="/" className="flex items-center gap-2 font-bold tracking-tight text-xl">
             <Truck className="h-6 w-6 text-primary" />
-            <span className="">TransitOps</span>
+            <span>TransitOps</span>
           </Link>
         </div>
-        <div className="flex-1 overflow-auto py-2">
-          <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
-            {navItems.map((item) => (
-              <Link
-                key={item.name}
-                to={item.path}
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-              >
-                {item.icon}
-                {item.name}
-              </Link>
-            ))}
-          </nav>
+        <div className="flex-1 overflow-auto py-4">
+          <NavigationGenerator />
+        </div>
+        <div className="p-4 border-t text-xs text-muted-foreground text-center">
+          Admin Console
         </div>
       </aside>
       <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-64 w-full">
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6 shadow-sm sm:shadow-none">
           <div className="flex-1">
-            <h1 className="text-lg font-semibold md:text-2xl hidden sm:block">Admin Console</h1>
+            <h1 className="text-lg font-semibold md:text-2xl hidden sm:block">Dashboard</h1>
           </div>
           <UserButton afterSignOutUrl="/login" />
         </header>
