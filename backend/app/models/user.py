@@ -1,11 +1,19 @@
 import enum
 import uuid
+from typing import TYPE_CHECKING
 from datetime import datetime, timezone
 from sqlalchemy import String, Boolean, DateTime, Enum
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
+
+if TYPE_CHECKING:
+    from app.models.vehicle import Vehicle
+    from app.models.driver import Driver
+    from app.models.trip import Trip
+    from app.models.maintenance import MaintenanceRecord
+    from app.models.expense import FuelLog, Expense
 
 class Role(str, enum.Enum):
     ADMIN = "ADMIN"
@@ -25,3 +33,11 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
+
+    # Relationships
+    vehicles: Mapped[list["Vehicle"]] = relationship("Vehicle", back_populates="creator")
+    drivers: Mapped[list["Driver"]] = relationship("Driver", back_populates="creator")
+    trips: Mapped[list["Trip"]] = relationship("Trip", back_populates="creator")
+    maintenance_records: Mapped[list["MaintenanceRecord"]] = relationship("MaintenanceRecord", back_populates="creator")
+    fuel_logs: Mapped[list["FuelLog"]] = relationship("FuelLog", back_populates="creator")
+    expenses: Mapped[list["Expense"]] = relationship("Expense", back_populates="creator")
