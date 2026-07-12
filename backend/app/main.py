@@ -7,6 +7,8 @@ from app.core.config import settings
 from app.core.logging import setup_logging
 from app.middleware.logging_middleware import LoggingMiddleware
 from app.api.health import router as health_router
+from app.api.vehicles import router as vehicles_router
+from app.api.drivers import router as drivers_router
 
 # Configure logging
 setup_logging(debug=settings.debug)
@@ -48,6 +50,8 @@ def create_app() -> FastAPI:
     
     # Include routers
     app.include_router(health_router)
+    app.include_router(vehicles_router)
+    app.include_router(drivers_router)
     app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
     app.include_router(users_router, prefix="/api/users", tags=["users"])
     @app.on_event("startup")

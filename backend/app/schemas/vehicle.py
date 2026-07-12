@@ -1,13 +1,13 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Optional
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 import uuid
 
 from app.enums.fleet import VehicleStatus
 
 class VehicleBase(BaseModel):
-    registration_number: str
-    vehicle_name: Optional[str] = None
+    registration_number: str = Field(..., description="Unique registration number")
+    vehicle_name: str = Field(..., description="Name of the vehicle")
     model: Optional[str] = None
     manufacturer: Optional[str] = None
     vehicle_type: Optional[str] = None
@@ -23,10 +23,37 @@ class VehicleBase(BaseModel):
     chassis_number: Optional[str] = None
     notes: Optional[str] = None
 
+    @field_validator('registration_number')
+    @classmethod
+    def registration_uppercase(cls, v: str) -> str:
+        return v.upper().strip()
+
+    @field_validator('capacity_kg')
+    @classmethod
+    def capacity_positive(cls, v: Optional[float]) -> Optional[float]:
+        if v is not None and v <= 0:
+            raise ValueError("Capacity must be greater than zero")
+        return v
+
+    @field_validator('acquisition_cost', 'current_odometer')
+    @classmethod
+    def value_non_negative(cls, v: Optional[float]) -> Optional[float]:
+        if v is not None and v < 0:
+            raise ValueError("Value cannot be negative")
+        return v
+
+    @field_validator('purchase_date')
+    @classmethod
+    def purchase_date_past(cls, v: Optional[date]) -> Optional[date]:
+        if v is not None and v > datetime.now(timezone.utc).date():
+            raise ValueError("Purchase date cannot be in the future")
+        return v
+
 class VehicleCreate(VehicleBase):
     pass
 
 class VehicleUpdate(BaseModel):
+    registration_number: Optional[str] = None
     vehicle_name: Optional[str] = None
     model: Optional[str] = None
     manufacturer: Optional[str] = None
@@ -43,6 +70,37 @@ class VehicleUpdate(BaseModel):
     chassis_number: Optional[str] = None
     notes: Optional[str] = None
 
+    @field_validator('registration_number')
+    @classmethod
+    def registration_uppercase(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None:
+            return v.upper().strip()
+        return v
+
+    @field_validator('capacity_kg')
+    @classmethod
+    def capacity_positive(cls, v: Optional[float]) -> Optional[float]:
+        if v is not None and v <= 0:
+            raise ValueError("Capacity must be greater than zero")
+        return v
+
+    @field_validator('acquisition_cost', 'current_odometer')
+    @classmethod
+    def value_non_negative(cls, v: Optional[float]) -> Optional[float]:
+        if v is not None and v < 0:
+            raise ValueError("Value cannot be negative")
+        return v
+
+    @field_validator('purchase_date')
+    @classmethod
+    def purchase_date_past(cls, v: Optional[date]) -> Optional[date]:
+        if v is not None and v > datetime.now(timezone.utc).date():
+            raise ValueError("Purchase date cannot be in the future")
+        return v
+
+class VehicleStatusUpdate(BaseModel):
+    status: VehicleStatus
+
 class VehicleResponse(VehicleBase):
     model_config = ConfigDict(from_attributes=True)
     id: uuid.UUID
@@ -50,7 +108,3 @@ class VehicleResponse(VehicleBase):
     created_at: datetime
     updated_at: datetime
     deleted_at: Optional[datetime]
-
-class VehicleListResponse(BaseModel):
-    items: list[VehicleResponse]
-    total: int
