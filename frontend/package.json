@@ -1,19 +1,16 @@
 {
-  "name": "frontend",
+  "name": "transitops",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "lint": "oxlint",
+    "build": "tsc -b && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@clerk/clerk-react": "^5.61.8",
     "@tailwindcss/vite": "^4.3.2",
-    "@tanstack/react-query": "^5.101.2",
-    "axios": "^1.18.1",
+    "@tanstack/react-table": "^8.21.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.24.0",
@@ -30,7 +27,7 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
-    "oxlint": "^1.71.0",
+    "typescript": "~5.8.3",
     "vite": "^8.1.1"
   }
 }

@@ -1,0 +1,38 @@
+{
+  "fleetUtilization": [
+    { "month": "Jan", "utilization": 72 },
+    { "month": "Feb", "utilization": 68 },
+    { "month": "Mar", "utilization": 78 },
+    { "month": "Apr", "utilization": 74 },
+    { "month": "May", "utilization": 82 },
+    { "month": "Jun", "utilization": 85 },
+    { "month": "Jul", "utilization": 79 }
+  ],
+  "roiData": [
+    { "month": "Jan", "revenue": 145000, "cost": 98000 },
+    { "month": "Feb", "revenue": 132000, "cost": 91000 },
+    { "month": "Mar", "revenue": 168000, "cost": 105000 },
+    { "month": "Apr", "revenue": 155000, "cost": 99000 },
+    { "month": "May", "revenue": 178000, "cost": 112000 },
+    { "month": "Jun", "revenue": 192000, "cost": 118000 },
+    { "month": "Jul", "revenue": 171000, "cost": 108000 }
+  ],
+  "fuelEfficiency": [
+    { "month": "Jan", "kmPerLiter": 5.2 },
+    { "month": "Feb", "kmPerLiter": 5.4 },
+    { "month": "Mar", "kmPerLiter": 5.1 },
+    { "month": "Apr", "kmPerLiter": 5.6 },
+    { "month": "May", "kmPerLiter": 5.3 },
+    { "month": "Jun", "kmPerLiter": 5.0 },
+    { "month": "Jul", "kmPerLiter": 5.5 }
+  ],
+  "maintenanceCost": [
+    { "month": "Jan", "cost": 18500 },
+    { "month": "Feb", "cost": 12800 },
+    { "month": "Mar", "cost": 22400 },
+    { "month": "Apr", "cost": 15600 },
+    { "month": "May", "cost": 19800 },
+    { "month": "Jun", "cost": 28900 },
+    { "month": "Jul", "cost": 21300 }
+  ]
+}
