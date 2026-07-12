@@ -6,13 +6,15 @@ import {
   HelpCircle,
   Menu,
 } from 'lucide-react';
-import { Avatar } from '@/components/ui/Avatar';
+import { UserButton, useUser } from '@clerk/clerk-react';
 
 interface TopNavbarProps {
   onMenuClick: () => void;
 }
 
 export function TopNavbar({ onMenuClick }: TopNavbarProps) {
+  const { user } = useUser();
+
   return (
     <header className="sticky top-0 z-30 h-16 bg-card/80 backdrop-blur-md border-b border-border">
       <div className="flex items-center justify-between h-full px-4 lg:px-6">
@@ -49,9 +51,11 @@ export function TopNavbar({ onMenuClick }: TopNavbarProps) {
           </button>
 
           <div className="hidden sm:flex items-center gap-2.5 ml-3 pl-3 border-l border-border">
-            <Avatar name="Akshat Makwana" size="sm" />
+            <UserButton afterSignOutUrl="/" />
             <div className="hidden md:block">
-              <p className="text-sm font-medium text-foreground leading-tight">Akshat Makwana</p>
+              <p className="text-sm font-medium text-foreground leading-tight">
+                {user?.fullName || 'User'}
+              </p>
               <p className="text-xs text-muted-foreground">Admin</p>
             </div>
           </div>
