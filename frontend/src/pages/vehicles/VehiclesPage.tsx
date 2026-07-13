@@ -37,7 +37,7 @@ export default function VehiclesPage() {
       accessorKey: 'registrationNo',
       header: 'Registration No',
       cell: ({ getValue }) => (
-        <span className="font-mono text-sm font-medium text-foreground">{getValue()}</span>
+        <span className="font-mono text-sm font-medium text-text-primary">{getValue()}</span>
       ),
     },
     {
@@ -45,8 +45,8 @@ export default function VehiclesPage() {
       header: 'Vehicle',
       cell: ({ row }) => (
         <div>
-          <p className="font-medium text-foreground">{row.original.name}</p>
-          <p className="text-xs text-muted-foreground">{row.original.year} · {row.original.fuelType}</p>
+          <p className="font-medium text-text-primary">{row.original.name}</p>
+          <p className="text-xs text-text-muted">{row.original.year} · {row.original.fuelType}</p>
         </div>
       ),
     },
@@ -84,16 +84,16 @@ export default function VehiclesPage() {
               e.stopPropagation();
               setActionMenuId(actionMenuId === row.original.id ? null : row.original.id);
             }}
-            className="p-1.5 rounded-lg hover:bg-accent text-muted-foreground transition-colors"
+            className="p-1.5 rounded-lg hover:bg-accent text-text-muted transition-colors"
           >
             <MoreHorizontal className="h-4 w-4" />
           </button>
           {actionMenuId === row.original.id && (
-            <div className="absolute right-0 top-8 z-20 w-40 bg-card border border-border rounded-lg shadow-lg py-1 animate-scale-in">
-              <button className="flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors">
+            <div className="absolute right-0 top-8 z-20 w-40 bg-bg-card border border-border-glass shadow-glass rounded-lg shadow-lg py-1 animate-scale-in">
+              <button className="flex items-center gap-2 w-full px-3 py-2 text-sm text-text-primary hover:bg-accent transition-colors">
                 <Eye className="h-3.5 w-3.5" /> View Details
               </button>
-              <button className="flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors">
+              <button className="flex items-center gap-2 w-full px-3 py-2 text-sm text-text-primary hover:bg-accent transition-colors">
                 <Edit className="h-3.5 w-3.5" /> Edit
               </button>
               <button className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
@@ -180,15 +180,15 @@ export default function VehiclesPage() {
       >
         <form className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">Vehicle Name</label>
+            <label className="block text-sm font-medium text-text-primary mb-1.5">Vehicle Name</label>
             <input {...register('name')} className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" placeholder="e.g., Transit Express 200" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">Registration Number</label>
+            <label className="block text-sm font-medium text-text-primary mb-1.5">Registration Number</label>
             <input {...register('registrationNo')} className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" placeholder="e.g., TX-0000-XX" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">Vehicle Type</label>
+            <label className="block text-sm font-medium text-text-primary mb-1.5">Vehicle Type</label>
             <select {...register('type')} className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
               <option value="">Select type</option>
               <option value="Bus">Bus</option>
@@ -200,19 +200,19 @@ export default function VehiclesPage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">Capacity</label>
+            <label className="block text-sm font-medium text-text-primary mb-1.5">Capacity</label>
             <input {...register('capacity')} type="number" className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" placeholder="e.g., 48" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">Acquisition Cost</label>
+            <label className="block text-sm font-medium text-text-primary mb-1.5">Acquisition Cost</label>
             <input {...register('acquisitionCost')} type="number" className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" placeholder="e.g., 285000" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">Odometer (km)</label>
+            <label className="block text-sm font-medium text-text-primary mb-1.5">Odometer (km)</label>
             <input {...register('odometer')} type="number" className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" placeholder="e.g., 0" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">Region</label>
+            <label className="block text-sm font-medium text-text-primary mb-1.5">Region</label>
             <select {...register('region')} className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
               <option value="">Select region</option>
               <option value="North">North</option>
@@ -222,7 +222,7 @@ export default function VehiclesPage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">Status</label>
+            <label className="block text-sm font-medium text-text-primary mb-1.5">Status</label>
             <select {...register('status')} className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
               <option value="Available">Available</option>
               <option value="In Shop">In Shop</option>

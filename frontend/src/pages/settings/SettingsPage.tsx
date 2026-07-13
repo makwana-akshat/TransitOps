@@ -49,7 +49,7 @@ export default function SettingsPage() {
               'flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px',
               activeTab === tab.id
                 ? 'border-primary text-primary'
-                : 'border-transparent text-muted-foreground hover:text-foreground'
+                : 'border-transparent text-text-muted hover:text-text-primary'
             )}
           >
             {tab.icon}
@@ -95,21 +95,21 @@ function ProfileTab() {
           </button>
         </div>
         <div>
-          <p className="text-sm font-medium text-foreground">Profile Photo</p>
-          <p className="text-xs text-muted-foreground">JPG, PNG or GIF. Max 2MB.</p>
+          <p className="text-sm font-medium text-text-primary">Profile Photo</p>
+          <p className="text-xs text-text-muted">JPG, PNG or GIF. Max 2MB.</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1.5">Full Name</label>
+          <label className="block text-sm font-medium text-text-primary mb-1.5">Full Name</label>
           <input
             {...register('name')}
             className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1.5">Email</label>
+          <label className="block text-sm font-medium text-text-primary mb-1.5">Email</label>
           <input
             {...register('email')}
             type="email"
@@ -117,14 +117,14 @@ function ProfileTab() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1.5">Phone</label>
+          <label className="block text-sm font-medium text-text-primary mb-1.5">Phone</label>
           <input
             {...register('phone')}
             className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1.5">Department</label>
+          <label className="block text-sm font-medium text-text-primary mb-1.5">Department</label>
           <input
             {...register('department')}
             className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
@@ -156,10 +156,10 @@ function NotificationsTab() {
   return (
     <div className="space-y-4">
       {settings.map((setting) => (
-        <div key={setting.id} className="flex items-center justify-between p-4 bg-card border border-border rounded-xl">
+        <div key={setting.id} className="flex items-center justify-between p-4 bg-bg-card border border-border-glass shadow-glass rounded-xl">
           <div>
-            <p className="text-sm font-medium text-foreground">{setting.label}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">{setting.description}</p>
+            <p className="text-sm font-medium text-text-primary">{setting.label}</p>
+            <p className="text-xs text-text-muted mt-0.5">{setting.description}</p>
           </div>
           <button
             onClick={() => toggleSetting(setting.id)}
@@ -190,10 +190,10 @@ function SecurityTab() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div className="bg-card border border-border rounded-xl p-5 space-y-4">
-        <h3 className="text-sm font-semibold text-foreground">Change Password</h3>
+      <div className="bg-bg-card border border-border-glass shadow-glass rounded-xl p-5 space-y-4">
+        <h3 className="text-sm font-semibold text-text-primary">Change Password</h3>
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1.5">Current Password</label>
+          <label className="block text-sm font-medium text-text-primary mb-1.5">Current Password</label>
           <input
             {...register('currentPassword')}
             type="password"
@@ -202,7 +202,7 @@ function SecurityTab() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1.5">New Password</label>
+          <label className="block text-sm font-medium text-text-primary mb-1.5">New Password</label>
           <input
             {...register('newPassword')}
             type="password"
@@ -211,7 +211,7 @@ function SecurityTab() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1.5">Confirm New Password</label>
+          <label className="block text-sm font-medium text-text-primary mb-1.5">Confirm New Password</label>
           <input
             {...register('confirmPassword')}
             type="password"
@@ -221,9 +221,9 @@ function SecurityTab() {
         </div>
       </div>
 
-      <div className="bg-card border border-border rounded-xl p-5">
-        <h3 className="text-sm font-semibold text-foreground mb-2">Two-Factor Authentication</h3>
-        <p className="text-xs text-muted-foreground mb-3">Add an extra layer of security to your account.</p>
+      <div className="bg-bg-card border border-border-glass shadow-glass rounded-xl p-5">
+        <h3 className="text-sm font-semibold text-text-primary mb-2">Two-Factor Authentication</h3>
+        <p className="text-xs text-text-muted mb-3">Add an extra layer of security to your account.</p>
         <PrimaryButton type="button" size="sm">Enable 2FA</PrimaryButton>
       </div>
 

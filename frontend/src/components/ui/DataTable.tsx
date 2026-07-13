@@ -13,6 +13,7 @@ import { cn } from '@/utils/cn';
 import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { Pagination } from './Pagination';
 import { EmptyState } from './EmptyState';
+import { GlassCard } from './GlassCard';
 
 interface DataTableProps<TData> {
   data: TData[];
@@ -55,12 +56,12 @@ export function DataTable<TData>({
 
   return (
     <div className={cn('space-y-4', className)}>
-      <div className="bg-card border border-border rounded-xl overflow-hidden">
+      <GlassCard className="p-0 overflow-hidden" hero={false}>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id} className="border-b border-border bg-muted/30">
+                <tr key={headerGroup.id} className="border-b border-border-glass bg-white/5">
                   {headerGroup.headers.map((header) => (
                     <th
                       key={header.id}
@@ -104,8 +105,8 @@ export function DataTable<TData>({
                     key={row.id}
                     onClick={() => onRowClick?.(row.original)}
                     className={cn(
-                      'border-b border-border last:border-0 transition-colors',
-                      onRowClick && 'cursor-pointer hover:bg-muted/50'
+                      'border-b border-border-glass last:border-0 transition-colors',
+                      onRowClick ? 'cursor-pointer hover:bg-white/[0.03]' : 'hover:bg-white/[0.03]'
                     )}
                   >
                     {row.getVisibleCells().map((cell) => (
@@ -119,7 +120,7 @@ export function DataTable<TData>({
             </tbody>
           </table>
         </div>
-      </div>
+      </GlassCard>
 
       {totalPages > 1 && (
         <Pagination
