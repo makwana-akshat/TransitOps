@@ -2,10 +2,9 @@ import React from 'react';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { StatCard } from '@/components/ui/StatCard';
 import { ChartCard } from '@/components/ui/ChartCard';
-import { StatusBadge, PillBadge } from '@/components/ui/StatusBadge';
+import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Avatar } from '@/components/ui/Avatar';
 import { PrimaryButton, SecondaryButton } from '@/components/ui/Button';
-import { GlassCard } from '@/components/ui/GlassCard';
 import {
   LayoutDashboard,
   Bus,
@@ -18,7 +17,6 @@ import {
   Eye,
   ArrowRight,
 } from 'lucide-react';
-import { motion } from "motion/react";
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
@@ -47,10 +45,10 @@ const utilizationData = [
 ];
 
 const vehicleStatusData = [
-  { name: 'Available', value: availableVehicles, fill: '#F5F5F7' },
-  { name: 'On Trip', value: onTrip, fill: '#8A8A93' },
-  { name: 'In Shop', value: inMaintenance, fill: '#5A5A63' },
-  { name: 'Retired', value: vehiclesData.filter(v => v.status === 'Retired').length, fill: '#282830' },
+  { name: 'Available', value: availableVehicles, fill: '#10B981' },
+  { name: 'On Trip', value: onTrip, fill: '#2563EB' },
+  { name: 'In Shop', value: inMaintenance, fill: '#F59E0B' },
+  { name: 'Retired', value: vehiclesData.filter(v => v.status === 'Retired').length, fill: '#9CA3AF' },
 ];
 
 const activities = [
@@ -62,25 +60,10 @@ const activities = [
 ];
 
 const typeColors = {
-  trip: 'green',
-  vehicle: 'neutral',
-  driver: 'neutral',
-  maintenance: 'red',
-} as const;
-
-const container = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1
-    }
-  }
-};
-
-const item = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  trip: 'bg-blue-100 text-blue-700',
+  vehicle: 'bg-emerald-100 text-emerald-700',
+  driver: 'bg-purple-100 text-purple-700',
+  maintenance: 'bg-amber-100 text-amber-700',
 };
 
 export default function DashboardPage() {
@@ -93,20 +76,14 @@ export default function DashboardPage() {
       />
 
       {/* KPI Cards */}
-      <motion.div 
-        variants={container}
-        initial="hidden"
-        animate="show"
-        id="tour-kpis" 
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6"
-      >
-        <motion.div variants={item}><StatCard label="Active Vehicles" value={activeVehicles} change={4.2} changeLabel="vs last month" icon={Bus} /></motion.div>
-        <motion.div variants={item}><StatCard label="Available" value={availableVehicles} change={-2.1} changeLabel="vs last month" icon={CheckCircle2} iconColor="text-emerald-600" iconBg="bg-emerald-50" /></motion.div>
-        <motion.div variants={item}><StatCard label="In Maintenance" value={inMaintenance} change={8.3} changeLabel="vs last month" icon={Wrench} iconColor="text-amber-600" iconBg="bg-amber-50" /></motion.div>
-        <motion.div variants={item}><StatCard label="Drivers On Duty" value={tripsData.filter(t => t.status === 'Dispatched').length} change={5.0} changeLabel="vs last month" icon={Users} iconColor="text-purple-600" iconBg="bg-purple-50" /></motion.div>
-        <motion.div variants={item}><StatCard label="Trips Today" value={tripsToday} change={12.5} changeLabel="vs yesterday" icon={Route} iconColor="text-cyan-600" iconBg="bg-cyan-50" /></motion.div>
-        <motion.div variants={item}><StatCard label="Fleet Utilization" value={`${utilization}%`} change={3.2} changeLabel="vs last month" icon={Gauge} iconColor="text-indigo-600" iconBg="bg-indigo-50" /></motion.div>
-      </motion.div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
+        <StatCard label="Active Vehicles" value={activeVehicles} change={4.2} changeLabel="vs last month" icon={Bus} />
+        <StatCard label="Available" value={availableVehicles} change={-2.1} changeLabel="vs last month" icon={CheckCircle2} iconColor="text-emerald-600" iconBg="bg-emerald-50" />
+        <StatCard label="In Maintenance" value={inMaintenance} change={8.3} changeLabel="vs last month" icon={Wrench} iconColor="text-amber-600" iconBg="bg-amber-50" />
+        <StatCard label="Drivers On Duty" value={tripsData.filter(t => t.status === 'Dispatched').length} change={5.0} changeLabel="vs last month" icon={Users} iconColor="text-purple-600" iconBg="bg-purple-50" />
+        <StatCard label="Trips Today" value={tripsToday} change={12.5} changeLabel="vs yesterday" icon={Route} iconColor="text-cyan-600" iconBg="bg-cyan-50" />
+        <StatCard label="Fleet Utilization" value={`${utilization}%`} change={3.2} changeLabel="vs last month" icon={Gauge} iconColor="text-indigo-600" iconBg="bg-indigo-50" />
+      </div>
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
@@ -115,31 +92,24 @@ export default function DashboardPage() {
             <AreaChart data={utilizationData}>
               <defs>
                 <linearGradient id="gradUtilization" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#F5F5F7" stopOpacity={0.15} />
-                  <stop offset="95%" stopColor="#F5F5F7" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#2563EB" stopOpacity={0.15} />
+                  <stop offset="95%" stopColor="#2563EB" stopOpacity={0} />
                 </linearGradient>
-                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="3" result="blur" />
-                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                </filter>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-              <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8A8A93' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 12, fill: '#8A8A93' }} axisLine={false} tickLine={false} domain={[0, 100]} />
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(214.3 31.8% 91.4%)" />
+              <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#6B7280' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 12, fill: '#6B7280' }} axisLine={false} tickLine={false} domain={[0, 100]} />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: '#141418',
-                  border: '1px solid rgba(255,255,255,0.07)',
-                  borderRadius: '16px',
+                  backgroundColor: 'white',
+                  border: '1px solid hsl(214.3 31.8% 91.4%)',
+                  borderRadius: '8px',
                   fontSize: '13px',
-                  color: '#F5F5F7',
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.45)',
+                  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
                 }}
-                itemStyle={{ color: '#F5F5F7' }}
                 formatter={(value: any) => [`${value}%`, 'Utilization']}
-                cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1, strokeDasharray: '3 3' }}
               />
-              <Area type="stepAfter" dataKey="utilization" stroke="#F5F5F7" strokeWidth={2} fill="url(#gradUtilization)" style={{ filter: 'url(#glow)' }} activeDot={{ r: 5, fill: '#F5F5F7', stroke: '#141418', strokeWidth: 2 }} />
+              <Area type="monotone" dataKey="utilization" stroke="#2563EB" strokeWidth={2} fill="url(#gradUtilization)" />
             </AreaChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -162,20 +132,18 @@ export default function DashboardPage() {
               </Pie>
               <Tooltip
                 contentStyle={{
-                  backgroundColor: '#141418',
-                  border: '1px solid rgba(255,255,255,0.07)',
-                  borderRadius: '16px',
+                  backgroundColor: 'white',
+                  border: '1px solid hsl(214.3 31.8% 91.4%)',
+                  borderRadius: '8px',
                   fontSize: '13px',
-                  color: '#F5F5F7',
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.45)',
+                  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
                 }}
-                itemStyle={{ color: '#F5F5F7' }}
               />
               <Legend
                 verticalAlign="bottom"
                 iconType="circle"
                 iconSize={8}
-                formatter={(value: string) => <span className="text-xs text-text-muted">{value}</span>}
+                formatter={(value: string) => <span className="text-xs text-gray-600">{value}</span>}
               />
             </PieChart>
           </ResponsiveContainer>
@@ -186,37 +154,28 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
         <ChartCard title="Fuel Cost Trend" subtitle="Monthly spending" className="lg:col-span-2">
           <ResponsiveContainer width="100%" height={260}>
-            <BarChart data={fuelData.monthlyFuelCost} barSize={36}>
-              <defs>
-                <linearGradient id="gradBar" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#8A8A93" stopOpacity={1} />
-                  <stop offset="100%" stopColor="#8A8A93" stopOpacity={0.1} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-              <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8A8A93' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 12, fill: '#8A8A93' }} axisLine={false} tickLine={false} />
+            <BarChart data={fuelData.monthlyFuelCost}>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(214.3 31.8% 91.4%)" />
+              <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#6B7280' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 12, fill: '#6B7280' }} axisLine={false} tickLine={false} />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: '#141418',
-                  border: '1px solid rgba(255,255,255,0.07)',
-                  borderRadius: '16px',
+                  backgroundColor: 'white',
+                  border: '1px solid hsl(214.3 31.8% 91.4%)',
+                  borderRadius: '8px',
                   fontSize: '13px',
-                  color: '#F5F5F7',
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.45)',
+                  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
                 }}
-                itemStyle={{ color: '#F5F5F7' }}
                 formatter={(value: any) => [formatCurrency(value), 'Cost']}
-                cursor={{ fill: 'rgba(255,255,255,0.03)' }}
               />
-              <Bar dataKey="cost" fill="url(#gradBar)" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="cost" fill="#2563EB" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
 
-        <GlassCard id="tour-quick-actions" className="lg:col-span-1 p-5">
-          <h3 className="text-sm font-semibold text-text-primary uppercase tracking-wide mb-6">Quick Actions</h3>
-          <div className="space-y-3">
+        <div className="bg-card border border-border rounded-xl p-5">
+          <h3 className="text-sm font-semibold text-foreground mb-4">Quick Actions</h3>
+          <div className="space-y-2.5">
             <PrimaryButton className="w-full justify-start" icon={<Plus className="h-4 w-4" />}>
               Register Vehicle
             </PrimaryButton>
@@ -230,37 +189,37 @@ export default function DashboardPage() {
               Add Driver
             </SecondaryButton>
           </div>
-        </GlassCard>
+        </div>
       </div>
 
       {/* Recent Activity */}
-      <GlassCard className="p-0 overflow-hidden mb-6">
-        <div className="flex items-center justify-between px-6 py-5 border-b border-border-glass bg-white/[0.02]">
-          <h3 className="text-sm font-semibold text-text-primary uppercase tracking-wide">Recent Activity</h3>
-          <button className="text-[11px] font-medium text-text-muted hover:text-text-primary flex items-center gap-1 transition-colors uppercase tracking-wider">
+      <div className="bg-card border border-border rounded-xl">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+          <h3 className="text-sm font-semibold text-foreground">Recent Activity</h3>
+          <button className="text-xs font-medium text-primary hover:text-primary/80 flex items-center gap-1 transition-colors">
             View all <ArrowRight className="h-3 w-3" />
           </button>
         </div>
-        <div className="divide-y divide-border-glass">
+        <div className="divide-y divide-border">
           {activities.map((activity) => (
-            <div key={activity.id} className="flex items-center gap-4 px-6 py-4 hover:bg-white/[0.03] transition-colors">
+            <div key={activity.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-muted/30 transition-colors">
               <Avatar name={activity.user} size="sm" />
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-text-primary">
+                <p className="text-sm text-foreground">
                   <span className="font-medium">{activity.action}</span>{' '}
-                  <span className="text-text-muted">— {activity.subject}</span>
+                  <span className="text-muted-foreground">— {activity.subject}</span>
                 </p>
-                <p className="text-xs text-text-muted mt-0.5">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   by {activity.user} · {getRelativeTime(activity.timestamp)}
                 </p>
               </div>
-              <PillBadge color={typeColors[activity.type]}>
+              <span className={`px-2 py-0.5 rounded-md text-[10px] font-medium uppercase tracking-wide ${typeColors[activity.type]}`}>
                 {activity.type}
-              </PillBadge>
+              </span>
             </div>
           ))}
         </div>
-      </GlassCard>
+      </div>
     </div>
   );
 }

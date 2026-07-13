@@ -65,7 +65,7 @@ export default function FuelExpensesPage() {
     {
       accessorKey: 'vehicleName',
       header: 'Vehicle',
-      cell: ({ getValue }) => getValue() || <span className="text-text-muted">—</span>,
+      cell: ({ getValue }) => getValue() || <span className="text-muted-foreground">—</span>,
     },
   ];
 
@@ -91,23 +91,15 @@ export default function FuelExpensesPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         <ChartCard title="Monthly Fuel Cost" subtitle="Year-to-date spending">
           <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={monthlyFuelCost} barSize={36}>
-              <defs>
-                <linearGradient id="gradBarFuel" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#8A8A93" stopOpacity={1} />
-                  <stop offset="100%" stopColor="#8A8A93" stopOpacity={0.1} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-              <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8A8A93' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 12, fill: '#8A8A93' }} axisLine={false} tickLine={false} />
+            <BarChart data={monthlyFuelCost}>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(214.3 31.8% 91.4%)" />
+              <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#6B7280' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 12, fill: '#6B7280' }} axisLine={false} tickLine={false} />
               <Tooltip
-                contentStyle={{ backgroundColor: '#141418', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '16px', fontSize: '13px', color: '#F5F5F7', boxShadow: '0 8px 32px rgba(0,0,0,0.45)' }}
-                itemStyle={{ color: '#F5F5F7' }}
+                contentStyle={{ backgroundColor: 'white', border: '1px solid hsl(214.3 31.8% 91.4%)', borderRadius: '8px', fontSize: '13px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                 formatter={(value: any) => [formatCurrency(value), 'Cost']}
-                cursor={{ fill: 'rgba(255,255,255,0.03)' }}
               />
-              <Bar dataKey="cost" fill="url(#gradBarFuel)" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="cost" fill="#2563EB" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -126,14 +118,12 @@ export default function FuelExpensesPage() {
                 label={({ name, percent }: any) => `${name} ${(percent * 100).toFixed(0)}%`}
                 labelLine={false}
               >
-                {costBreakdown.map((entry, i) => {
-                  const fills = ['#F5F5F7', '#8A8A93', '#5A5A63', '#282830', '#1C1C22'];
-                  return <Cell key={i} fill={fills[i % fills.length]} />;
-                })}
+                {costBreakdown.map((entry, i) => (
+                  <Cell key={i} fill={entry.fill} />
+                ))}
               </Pie>
               <Tooltip
-                contentStyle={{ backgroundColor: '#141418', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '16px', fontSize: '13px', color: '#F5F5F7', boxShadow: '0 8px 32px rgba(0,0,0,0.45)' }}
-                itemStyle={{ color: '#F5F5F7' }}
+                contentStyle={{ backgroundColor: 'white', border: '1px solid hsl(214.3 31.8% 91.4%)', borderRadius: '8px', fontSize: '13px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                 formatter={(value: any) => [formatCurrency(value)]}
               />
             </PieChart>
@@ -142,15 +132,15 @@ export default function FuelExpensesPage() {
       </div>
 
       {/* Category Tabs */}
-      <div className="flex items-center gap-1 mb-4 border-b border-border-glass">
+      <div className="flex items-center gap-1 mb-4 border-b border-border">
         {tabs.map((tab) => (
           <button
             key={tab}
             onClick={() => setCategoryFilter(tab)}
             className={`px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px ${
               categoryFilter === tab
-                ? 'border-white text-text-primary'
-                : 'border-transparent text-text-muted hover:text-text-primary'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
             }`}
           >
             {tab}

@@ -33,8 +33,8 @@ export default function MaintenancePage() {
       header: 'Vehicle',
       cell: ({ row }) => (
         <div>
-          <p className="font-medium text-text-primary">{row.original.vehicleName}</p>
-          <p className="text-xs text-text-muted font-mono">{row.original.vehicleRegistration}</p>
+          <p className="font-medium text-foreground">{row.original.vehicleName}</p>
+          <p className="text-xs text-muted-foreground font-mono">{row.original.vehicleRegistration}</p>
         </div>
       ),
     },
@@ -43,7 +43,7 @@ export default function MaintenancePage() {
       header: 'Service Type',
       cell: ({ getValue }) => (
         <span className="inline-flex items-center gap-1.5 text-sm">
-          <Wrench className="h-3.5 w-3.5 text-text-muted" />
+          <Wrench className="h-3.5 w-3.5 text-muted-foreground" />
           {getValue()}
         </span>
       ),
@@ -65,7 +65,7 @@ export default function MaintenancePage() {
         <div>
           <p className="text-sm">{formatDate(row.original.scheduledDate)}</p>
           {row.original.completedDate && (
-            <p className="text-xs text-text-muted">Done: {formatDate(row.original.completedDate)}</p>
+            <p className="text-xs text-muted-foreground">Done: {formatDate(row.original.completedDate)}</p>
           )}
         </div>
       ),
@@ -85,7 +85,7 @@ export default function MaintenancePage() {
       />
 
       {/* KPI Cards */}
-      <div id="tour-maintenance-stats" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatCard label="Active Records" value={activeRecords} icon={ClipboardList} />
         <StatCard label="Vehicles In Shop" value={vehiclesInShop} icon={Wrench} iconColor="text-amber-600" iconBg="bg-amber-50" />
         <StatCard label="Monthly Cost" value={formatCurrency(monthlyCost)} change={-5.2} changeLabel="vs last month" icon={DollarSign} iconColor="text-emerald-600" iconBg="bg-emerald-50" />
@@ -102,24 +102,24 @@ export default function MaintenancePage() {
         </div>
 
         {/* Upcoming Maintenance Panel */}
-        <div className="bg-bg-card border border-border-glass shadow-glass rounded-xl p-5 h-fit">
+        <div className="bg-card border border-border rounded-xl p-5 h-fit">
           <div className="flex items-center gap-2 mb-4">
             <Calendar className="h-4 w-4 text-primary" />
-            <h3 className="text-sm font-semibold text-text-primary">Upcoming</h3>
+            <h3 className="text-sm font-semibold text-foreground">Upcoming</h3>
           </div>
           <div className="space-y-3">
             {upcomingMaintenance.map((record) => (
               <div key={record.id} className="p-3 bg-muted/30 rounded-lg border border-border">
-                <p className="text-sm font-medium text-text-primary">{record.vehicleName}</p>
-                <p className="text-xs text-text-muted mt-0.5">{record.serviceType}</p>
+                <p className="text-sm font-medium text-foreground">{record.vehicleName}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{record.serviceType}</p>
                 <div className="flex items-center justify-between mt-2">
                   <span className="text-xs text-primary font-medium">{formatDate(record.scheduledDate)}</span>
-                  <span className="text-xs font-semibold text-text-primary">{formatCurrency(record.cost)}</span>
+                  <span className="text-xs font-semibold text-foreground">{formatCurrency(record.cost)}</span>
                 </div>
               </div>
             ))}
             {upcomingMaintenance.length === 0 && (
-              <p className="text-sm text-text-muted">No upcoming maintenance.</p>
+              <p className="text-sm text-muted-foreground">No upcoming maintenance.</p>
             )}
           </div>
         </div>

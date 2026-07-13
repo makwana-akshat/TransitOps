@@ -42,8 +42,8 @@ export default function TripsPage() {
             <div className="h-2 w-2 rounded-full bg-red-500" />
           </div>
           <div>
-            <p className="text-sm font-medium text-text-primary">{row.original.origin}</p>
-            <p className="text-xs text-text-muted">{row.original.destination}</p>
+            <p className="text-sm font-medium text-foreground">{row.original.origin}</p>
+            <p className="text-xs text-muted-foreground">{row.original.destination}</p>
           </div>
         </div>
       ),
@@ -120,10 +120,10 @@ export default function TripsPage() {
 
         {/* Trip Detail Panel */}
         {selectedTrip && (
-          <div className="w-full xl:w-96 bg-bg-card border border-border-glass shadow-glass rounded-xl p-5 h-fit animate-slide-in-right">
+          <div className="w-full xl:w-96 bg-card border border-border rounded-xl p-5 h-fit animate-slide-in-right">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-text-primary">Trip Details</h3>
-              <button onClick={() => setSelectedTrip(null)} className="p-1 rounded-lg hover:bg-accent text-text-muted transition-colors">
+              <h3 className="text-sm font-semibold text-foreground">Trip Details</h3>
+              <button onClick={() => setSelectedTrip(null)} className="p-1 rounded-lg hover:bg-accent text-muted-foreground transition-colors">
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -137,11 +137,11 @@ export default function TripsPage() {
 
               {/* Route Progress */}
               <div>
-                <p className="text-xs font-medium text-text-muted mb-2">Route Progress</p>
+                <p className="text-xs font-medium text-muted-foreground mb-2">Route Progress</p>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <MapPin className="h-3.5 w-3.5 text-emerald-500" />
-                    <span className="text-sm text-text-primary">{selectedTrip.origin}</span>
+                    <span className="text-sm text-foreground">{selectedTrip.origin}</span>
                   </div>
                   <div className="ml-[7px] w-px h-4 bg-border" />
                   <div className="w-full bg-muted rounded-full h-2">
@@ -153,40 +153,40 @@ export default function TripsPage() {
                   <div className="ml-[7px] w-px h-4 bg-border" />
                   <div className="flex items-center gap-2">
                     <MapPin className="h-3.5 w-3.5 text-red-500" />
-                    <span className="text-sm text-text-primary">{selectedTrip.destination}</span>
+                    <span className="text-sm text-foreground">{selectedTrip.destination}</span>
                   </div>
                 </div>
               </div>
 
               {/* Cargo Information */}
               <div className="bg-muted/30 rounded-lg p-3 space-y-2">
-                <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">Cargo Info</p>
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Cargo Info</p>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex items-center gap-2">
-                    <Package className="h-3.5 w-3.5 text-text-muted" />
+                    <Package className="h-3.5 w-3.5 text-muted-foreground" />
                     <div>
-                      <p className="text-xs text-text-muted">Type</p>
+                      <p className="text-xs text-muted-foreground">Type</p>
                       <p className="text-sm font-medium">{selectedTrip.cargoType}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Weight className="h-3.5 w-3.5 text-text-muted" />
+                    <Weight className="h-3.5 w-3.5 text-muted-foreground" />
                     <div>
-                      <p className="text-xs text-text-muted">Weight</p>
+                      <p className="text-xs text-muted-foreground">Weight</p>
                       <p className="text-sm font-medium">{selectedTrip.cargoWeight > 0 ? `${formatNumber(selectedTrip.cargoWeight)} kg` : 'N/A'}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Truck className="h-3.5 w-3.5 text-text-muted" />
+                    <Truck className="h-3.5 w-3.5 text-muted-foreground" />
                     <div>
-                      <p className="text-xs text-text-muted">Vehicle</p>
+                      <p className="text-xs text-muted-foreground">Vehicle</p>
                       <p className="text-sm font-medium">{selectedTrip.vehicleName}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <User className="h-3.5 w-3.5 text-text-muted" />
+                    <User className="h-3.5 w-3.5 text-muted-foreground" />
                     <div>
-                      <p className="text-xs text-text-muted">Driver</p>
+                      <p className="text-xs text-muted-foreground">Driver</p>
                       <p className="text-sm font-medium">{selectedTrip.driverName}</p>
                     </div>
                   </div>
@@ -196,8 +196,8 @@ export default function TripsPage() {
               {/* Notes */}
               {selectedTrip.notes && (
                 <div>
-                  <p className="text-xs font-medium text-text-muted mb-1">Notes</p>
-                  <p className="text-sm text-text-primary bg-muted/30 p-2.5 rounded-lg">{selectedTrip.notes}</p>
+                  <p className="text-xs font-medium text-muted-foreground mb-1">Notes</p>
+                  <p className="text-sm text-foreground bg-muted/30 p-2.5 rounded-lg">{selectedTrip.notes}</p>
                 </div>
               )}
 
