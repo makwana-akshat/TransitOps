@@ -53,8 +53,8 @@ export default function DriversPage() {
         <div className="flex items-center gap-3">
           <Avatar name={row.original.name} size="sm" />
           <div>
-            <p className="font-medium text-foreground">{row.original.name}</p>
-            <p className="text-xs text-muted-foreground">{row.original.email}</p>
+            <p className="font-medium text-text-primary">{row.original.name}</p>
+            <p className="text-xs text-text-muted">{row.original.email}</p>
           </div>
         </div>
       ),
@@ -68,7 +68,7 @@ export default function DriversPage() {
       accessorKey: 'category',
       header: 'Category',
       cell: ({ getValue }) => (
-        <span className="px-2 py-0.5 bg-muted rounded-md text-xs font-semibold text-foreground">
+        <span className="px-2 py-0.5 bg-muted rounded-md text-xs font-semibold text-text-primary">
           {getValue()}
         </span>
       ),
@@ -78,8 +78,8 @@ export default function DriversPage() {
       header: 'Safety Score',
       cell: ({ getValue }) => {
         const score = getValue() as number;
-        const color = score >= 90 ? 'text-emerald-600' : score >= 80 ? 'text-amber-600' : 'text-red-600';
-        const bg = score >= 90 ? 'bg-emerald-50' : score >= 80 ? 'bg-amber-50' : 'bg-red-50';
+        const color = score >= 90 ? 'text-emerald-400' : score >= 80 ? 'text-amber-400' : 'text-red-400';
+        const bg = score >= 90 ? 'bg-emerald-500/10 border border-emerald-500/20' : score >= 80 ? 'bg-amber-500/10 border border-amber-500/20' : 'bg-red-500/10 border border-red-500/20';
         return (
           <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-bold ${color} ${bg}`}>
             {score}/100
@@ -96,7 +96,7 @@ export default function DriversPage() {
         const diffDays = Math.ceil((date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
         const isExpiring = diffDays <= 90;
         return (
-          <span className={isExpiring ? 'text-amber-600 font-medium' : ''}>
+          <span className={isExpiring ? 'text-amber-400 font-medium' : ''}>
             {formatDate(getValue() as string)}
             {isExpiring && diffDays > 0 && <span className="text-xs ml-1">({diffDays}d)</span>}
           </span>
@@ -123,19 +123,19 @@ export default function DriversPage() {
               e.stopPropagation();
               setActionMenuId(actionMenuId === row.original.id ? null : row.original.id);
             }}
-            className="p-1.5 rounded-lg hover:bg-accent text-muted-foreground transition-colors"
+            className="p-1.5 rounded-lg hover:bg-accent text-text-muted transition-colors"
           >
             <MoreHorizontal className="h-4 w-4" />
           </button>
           {actionMenuId === row.original.id && (
-            <div className="absolute right-0 top-8 z-20 w-40 bg-card border border-border rounded-lg shadow-lg py-1 animate-scale-in">
-              <button className="flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors">
+            <div className="absolute right-0 top-8 z-20 w-40 bg-bg-card border border-border-glass shadow-glass rounded-lg shadow-lg py-1 animate-scale-in">
+              <button className="flex items-center gap-2 w-full px-3 py-2 text-sm text-text-primary hover:bg-accent transition-colors">
                 <Eye className="h-3.5 w-3.5" /> View Profile
               </button>
-              <button className="flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors">
+              <button className="flex items-center gap-2 w-full px-3 py-2 text-sm text-text-primary hover:bg-accent transition-colors">
                 <Edit className="h-3.5 w-3.5" /> Edit
               </button>
-              <button className="flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors">
+              <button className="flex items-center gap-2 w-full px-3 py-2 text-sm text-text-primary hover:bg-accent transition-colors">
                 <Phone className="h-3.5 w-3.5" /> Call
               </button>
             </div>
@@ -171,24 +171,24 @@ export default function DriversPage() {
         </div>
 
         {/* Compliance Alerts Panel */}
-        <div className="bg-card border border-border rounded-xl p-5 h-fit">
+        <div className="bg-bg-card border border-border-glass shadow-glass rounded-xl p-5 h-fit">
           <div className="flex items-center gap-2 mb-4">
             <AlertTriangle className="h-4 w-4 text-amber-500" />
-            <h3 className="text-sm font-semibold text-foreground">Compliance Alerts</h3>
+            <h3 className="text-sm font-semibold text-text-primary">Compliance Alerts</h3>
           </div>
           {complianceAlerts.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No compliance issues.</p>
+            <p className="text-sm text-text-muted">No compliance issues.</p>
           ) : (
             <div className="space-y-3">
               {complianceAlerts.map((alert) => (
                 <div key={alert.id} className={`p-3 rounded-lg border ${
-                  alert.severity === 'critical' ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200'
+                  alert.severity === 'critical' ? 'bg-red-500/10 border-red-500/20' : 'bg-amber-500/10 border-amber-500/20'
                 }`}>
-                  <p className="text-sm font-medium text-foreground">{alert.name}</p>
+                  <p className="text-sm font-medium text-text-primary">{alert.name}</p>
                   <p className={`text-xs mt-0.5 ${
-                    alert.severity === 'critical' ? 'text-red-600' : 'text-amber-600'
+                    alert.severity === 'critical' ? 'text-red-400' : 'text-amber-400'
                   }`}>{alert.issue}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{formatDate(alert.date)}</p>
+                  <p className="text-xs text-text-muted mt-0.5">{formatDate(alert.date)}</p>
                 </div>
               ))}
             </div>

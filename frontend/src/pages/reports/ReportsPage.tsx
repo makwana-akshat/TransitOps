@@ -42,18 +42,24 @@ export default function ReportsPage() {
             <AreaChart data={fleetUtilization}>
               <defs>
                 <linearGradient id="gradUtil" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#2563EB" stopOpacity={0.15} />
-                  <stop offset="95%" stopColor="#2563EB" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#F5F5F7" stopOpacity={0.15} />
+                  <stop offset="95%" stopColor="#F5F5F7" stopOpacity={0} />
                 </linearGradient>
+                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="3" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(214.3 31.8% 91.4%)" />
-              <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#6B7280' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 12, fill: '#6B7280' }} axisLine={false} tickLine={false} domain={[0, 100]} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+              <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8A8A93' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 12, fill: '#8A8A93' }} axisLine={false} tickLine={false} domain={[0, 100]} />
               <Tooltip
-                contentStyle={{ backgroundColor: 'white', border: '1px solid hsl(214.3 31.8% 91.4%)', borderRadius: '8px', fontSize: '13px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                contentStyle={{ backgroundColor: '#141418', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '16px', fontSize: '13px', color: '#F5F5F7', boxShadow: '0 8px 32px rgba(0,0,0,0.45)' }}
+                itemStyle={{ color: '#F5F5F7' }}
                 formatter={(value: any) => [`${value}%`, 'Utilization']}
+                cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1, strokeDasharray: '3 3' }}
               />
-              <Area type="monotone" dataKey="utilization" stroke="#2563EB" strokeWidth={2} fill="url(#gradUtil)" />
+              <Area type="stepAfter" dataKey="utilization" stroke="#F5F5F7" strokeWidth={2} fill="url(#gradUtil)" style={{ filter: 'url(#glow)' }} activeDot={{ r: 5, fill: '#F5F5F7', stroke: '#141418', strokeWidth: 2 }} />
             </AreaChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -62,16 +68,28 @@ export default function ReportsPage() {
         <ChartCard title="ROI Analysis" subtitle="Revenue vs Cost comparison">
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={roiData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(214.3 31.8% 91.4%)" />
-              <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#6B7280' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 12, fill: '#6B7280' }} axisLine={false} tickLine={false} />
+              <defs>
+                <linearGradient id="gradBarRev" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#F5F5F7" stopOpacity={1} />
+                  <stop offset="100%" stopColor="#F5F5F7" stopOpacity={0.1} />
+                </linearGradient>
+                <linearGradient id="gradBarCost" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#5A5A63" stopOpacity={1} />
+                  <stop offset="100%" stopColor="#5A5A63" stopOpacity={0.1} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+              <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8A8A93' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 12, fill: '#8A8A93' }} axisLine={false} tickLine={false} />
               <Tooltip
-                contentStyle={{ backgroundColor: 'white', border: '1px solid hsl(214.3 31.8% 91.4%)', borderRadius: '8px', fontSize: '13px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                contentStyle={{ backgroundColor: '#141418', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '16px', fontSize: '13px', color: '#F5F5F7', boxShadow: '0 8px 32px rgba(0,0,0,0.45)' }}
+                itemStyle={{ color: '#F5F5F7' }}
                 formatter={(value: any) => [formatCurrency(value)]}
+                cursor={{ fill: 'rgba(255,255,255,0.03)' }}
               />
-              <Legend iconType="circle" iconSize={8} />
-              <Bar dataKey="revenue" name="Revenue" fill="#2563EB" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="cost" name="Cost" fill="#F59E0B" radius={[4, 4, 0, 0]} />
+              <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '12px', color: '#8A8A93' }} />
+              <Bar dataKey="revenue" name="Revenue" fill="url(#gradBarRev)" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="cost" name="Cost" fill="url(#gradBarCost)" radius={[2, 2, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -80,14 +98,22 @@ export default function ReportsPage() {
         <ChartCard title="Fuel Efficiency" subtitle="Average km per liter">
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={fuelEfficiency}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(214.3 31.8% 91.4%)" />
-              <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#6B7280' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 12, fill: '#6B7280' }} axisLine={false} tickLine={false} domain={[4, 6]} />
+              <defs>
+                <filter id="glowGreen" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="3" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+              <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8A8A93' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 12, fill: '#8A8A93' }} axisLine={false} tickLine={false} domain={[4, 6]} />
               <Tooltip
-                contentStyle={{ backgroundColor: 'white', border: '1px solid hsl(214.3 31.8% 91.4%)', borderRadius: '8px', fontSize: '13px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                contentStyle={{ backgroundColor: '#141418', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '16px', fontSize: '13px', color: '#F5F5F7', boxShadow: '0 8px 32px rgba(0,0,0,0.45)' }}
+                itemStyle={{ color: '#F5F5F7' }}
                 formatter={(value: any) => [`${value} km/L`, 'Efficiency']}
+                cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1, strokeDasharray: '3 3' }}
               />
-              <Line type="monotone" dataKey="kmPerLiter" stroke="#10B981" strokeWidth={2.5} dot={{ r: 4, fill: '#10B981' }} activeDot={{ r: 6 }} />
+              <Line type="stepAfter" dataKey="kmPerLiter" stroke="#3ECF8E" strokeWidth={2} style={{ filter: 'url(#glowGreen)' }} dot={false} activeDot={{ r: 5, fill: '#3ECF8E', stroke: '#141418', strokeWidth: 2 }} />
             </LineChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -96,14 +122,22 @@ export default function ReportsPage() {
         <ChartCard title="Maintenance Cost" subtitle="Monthly maintenance spending">
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={maintenanceCost}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(214.3 31.8% 91.4%)" />
-              <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#6B7280' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 12, fill: '#6B7280' }} axisLine={false} tickLine={false} />
+              <defs>
+                <linearGradient id="gradBarMaint" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#8A8A93" stopOpacity={1} />
+                  <stop offset="100%" stopColor="#8A8A93" stopOpacity={0.1} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+              <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8A8A93' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 12, fill: '#8A8A93' }} axisLine={false} tickLine={false} />
               <Tooltip
-                contentStyle={{ backgroundColor: 'white', border: '1px solid hsl(214.3 31.8% 91.4%)', borderRadius: '8px', fontSize: '13px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                contentStyle={{ backgroundColor: '#141418', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '16px', fontSize: '13px', color: '#F5F5F7', boxShadow: '0 8px 32px rgba(0,0,0,0.45)' }}
+                itemStyle={{ color: '#F5F5F7' }}
                 formatter={(value: any) => [formatCurrency(value), 'Cost']}
+                cursor={{ fill: 'rgba(255,255,255,0.03)' }}
               />
-              <Bar dataKey="cost" fill="#F59E0B" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="cost" fill="url(#gradBarMaint)" radius={[2, 2, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>

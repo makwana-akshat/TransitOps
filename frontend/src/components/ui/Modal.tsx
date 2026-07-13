@@ -1,6 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { cn } from '@/utils/cn';
 import { X } from 'lucide-react';
+import { CircleIconButton } from './Button';
 
 interface ModalProps {
   isOpen: boolean;
@@ -37,46 +39,52 @@ export function Modal({ isOpen, onClose, title, subtitle, children, footer, size
     return () => document.removeEventListener('keydown', handleEsc);
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
+  const [mounted, setMounted] = useState(false);
 
-  return (
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!isOpen || !mounted) return null;
+
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in"
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
         onClick={onClose}
       />
       {/* Dialog */}
       <div
         className={cn(
-          'relative w-full bg-card rounded-xl shadow-2xl border border-border animate-scale-in',
+          'relative w-full max-h-[calc(100vh-2rem)] flex flex-col bg-bg-card rounded-2xl shadow-glass border border-border-glass overflow-hidden animate-scale-in',
           sizeClasses[size]
         )}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-          <div>
-            <h2 className="text-lg font-semibold text-foreground">{title}</h2>
-            {subtitle && <p className="text-sm text-muted-foreground mt-0.5">{subtitle}</p>}
+        <div className="pointer-events-none absolute inset-0 rounded-[inherit] shadow-glass-inset mix-blend-overlay opacity-50" />
+        
+        <div className="relative z-10 flex flex-col h-full max-h-[calc(100vh-2rem)]">
+          {/* Header */}
+          <div className="flex-shrink-0 flex items-center justify-between px-6 py-5 border-b border-border-glass">
+            <div>
+              <h2 className="text-lg font-semibold text-text-primary">{title}</h2>
+              {subtitle && <p className="text-sm text-text-muted mt-0.5">{subtitle}</p>}
+            </div>
+            <CircleIconButton onClick={onClose} icon={<X className="h-4 w-4" />} />
           </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-        {/* Body */}
-        <div className="px-6 py-4 max-h-[60vh] overflow-y-auto">
-          {children}
-        </div>
-        {/* Footer */}
-        {footer && (
-          <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border bg-muted/30 rounded-b-xl">
-            {footer}
+          {/* Body */}
+          <div className="flex-1 overflow-y-auto px-6 py-6">
+            {children}
           </div>
-        )}
+          {/* Footer */}
+          {footer && (
+            <div className="flex-shrink-0 flex items-center justify-end gap-3 px-6 py-5 border-t border-border-glass bg-white/[0.02]">
+              {footer}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

@@ -10,10 +10,10 @@ interface MetricCardProps {
 
 export function MetricCard({ label, value, sublabel, className }: MetricCardProps) {
   return (
-    <div className={cn('text-center p-4', className)}>
-      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{label}</p>
-      <p className="text-xl font-bold text-foreground mt-1">{value}</p>
-      {sublabel && <p className="text-xs text-muted-foreground mt-0.5">{sublabel}</p>}
+    <div className={cn('text-center p-4 flex flex-col items-center justify-center', className)}>
+      <span className="text-[11px] font-medium text-text-muted uppercase tracking-wider mb-1">{label}</span>
+      <span className="text-2xl font-bold text-text-primary">{value}</span>
+      {sublabel && <span className="text-xs text-text-faint mt-1">{sublabel}</span>}
     </div>
   );
 }
