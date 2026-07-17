@@ -5,7 +5,7 @@ import { GlassCard } from './GlassCard';
 import { NumberTicker } from './NumberTicker';
 
 interface StatFigureProps {
-  label: string;
+  label: string | React.ReactNode;
   value: string | number;
   change?: number;
   changeLabel?: string;
@@ -54,7 +54,7 @@ export function StatFigure({ label, value, change, changeLabel, className }: Sta
 }
 
 interface StatCardProps {
-  label: string;
+  label: string | React.ReactNode;
   value: string | number;
   change?: number;
   changeLabel?: string;

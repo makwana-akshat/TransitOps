@@ -13,13 +13,13 @@ class TripBase(BaseModel):
     driver_id: uuid.UUID
     source: str = Field(...)
     destination: str = Field(...)
-    cargo_description: str = Field(...)
-    cargo_weight: float = Field(..., ge=0)
+    cargo_description: Optional[str] = None
+    cargo_weight: Optional[float] = Field(None, ge=0)
     planned_distance: float = Field(..., ge=0)
     actual_distance: Optional[float] = None
-    planned_start: datetime
+    planned_start: Optional[datetime] = None
     actual_start: Optional[datetime] = None
-    planned_end: datetime
+    planned_end: Optional[datetime] = None
     actual_end: Optional[datetime] = None
     fuel_consumed: Optional[float] = None
     trip_revenue: Optional[float] = None

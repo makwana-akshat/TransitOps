@@ -37,6 +37,7 @@ class MaintenanceRecord(Base, UUIDMixin, TimestampMixin):
     status: Mapped[MaintenanceStatus] = mapped_column(Enum(MaintenanceStatus, name="maintenancestatus"), default=MaintenanceStatus.OPEN, index=True, nullable=False)
     
     created_by: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # Relationships
     vehicle: Mapped["Vehicle"] = relationship("Vehicle", back_populates="maintenance_records")

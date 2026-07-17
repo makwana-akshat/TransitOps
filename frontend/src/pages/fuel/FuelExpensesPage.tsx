@@ -1,56 +1,113 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { type ColumnDef } from '@tanstack/react-table';
+import { useQuery } from '@tanstack/react-query';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { StatCard } from '@/components/ui/StatCard';
 import { ChartCard } from '@/components/ui/ChartCard';
 import { SearchInput } from '@/components/ui/SearchInput';
 import { DataTable } from '@/components/ui/DataTable';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { FuelFormModal } from '@/components/forms/FuelFormModal';
+import { ExpenseFormModal } from '@/components/forms/ExpenseFormModal';
 import {
-  Fuel, DollarSign, TrendingUp, PieChart as PieIcon,
+  Fuel, DollarSign, TrendingUp, PieChart as PieIcon, Plus,
 } from 'lucide-react';
 import {
   BarChart, Bar, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
 import { formatCurrency, formatDate } from '@/utils/formatters';
-import fuelData from '@/data/fuel.json';
+import { fetchFuelLogs, fetchExpenses, fetchFuelSummary, fetchExpenseSummary } from '@/api/expenses';
 
-const { monthlyFuelCost, expenses, costBreakdown, summary } = fuelData;
-
-type ExpenseCategory = 'All' | 'Fuel' | 'Maintenance' | 'Tolls' | 'Insurance' | 'Other';
-
-interface Expense {
-  id: string;
-  category: string;
-  description: string;
-  amount: number;
-  date: string;
-  vehicleName?: string;
-}
+type ActiveTab = 'Fuel' | 'Expenses';
 
 export default function FuelExpensesPage() {
   const [search, setSearch] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState<ExpenseCategory>('All');
+  const [activeTab, setActiveTab] = useState<ActiveTab>('Fuel');
+  const [isFuelModalOpen, setIsFuelModalOpen] = useState(false);
+  const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
 
-  const filteredExpenses = useMemo(() => {
-    return (expenses as Expense[]).filter(e => categoryFilter === 'All' || e.category === categoryFilter);
-  }, [categoryFilter]);
+  // ── Data Fetching ──────────────────────────────────────────────────────────
+  const { data: fuelLogsData, isLoading: fuelLoading } = useQuery({
+    queryKey: ['fuel-logs', { search }],
+    queryFn: () => fetchFuelLogs({ search: search || undefined, page_size: 50 }),
+  });
 
-  const columns: ColumnDef<Expense, any>[] = [
+  const { data: expensesData, isLoading: expLoading } = useQuery({
+    queryKey: ['expenses', { search }],
+    queryFn: () => fetchExpenses({ search: search || undefined, page_size: 50 }),
+  });
+
+  const { data: fuelSummaryData } = useQuery({
+    queryKey: ['fuel-summary'],
+    queryFn: fetchFuelSummary,
+  });
+
+  const { data: expenseSummaryData } = useQuery({
+    queryKey: ['expense-summary'],
+    queryFn: fetchExpenseSummary,
+  });
+
+  const fuelLogs = fuelLogsData?.data?.items || [];
+  const expenses = expensesData?.data?.items || [];
+  const fuelSummary = fuelSummaryData?.data;
+  const expenseSummary = expenseSummaryData?.data;
+
+  // ── Build expense breakdown for pie chart ─────────────────────────────────
+  const costBreakdown = expenseSummary?.expense_breakdown
+    ? Object.entries(expenseSummary.expense_breakdown).map(([name, value]) => ({ name, value }))
+    : [];
+
+  // ── Columns ───────────────────────────────────────────────────────────────
+  const fuelColumns: ColumnDef<any, any>[] = [
     {
-      accessorKey: 'category',
+      accessorKey: 'vehicle_id',
+      header: 'Vehicle',
+      cell: ({ row }) => (
+        <span className="font-mono text-xs text-text-muted">{row.original.vehicle_id?.slice(0, 8)}…</span>
+      ),
+    },
+    {
+      accessorKey: 'fuel_type',
+      header: 'Fuel Type',
+      cell: ({ getValue }) => <StatusBadge status={getValue()} variant="info" />,
+    },
+    {
+      accessorKey: 'liters',
+      header: 'Liters',
+      cell: ({ getValue }) => <span className="font-medium">{getValue()} L</span>,
+    },
+    {
+      accessorKey: 'total_cost',
+      header: 'Total Cost',
+      cell: ({ getValue }) => <span className="font-semibold">{formatCurrency(getValue())}</span>,
+    },
+    {
+      accessorKey: 'payment_method',
+      header: 'Payment',
+      cell: ({ getValue }) => <span className="text-sm text-text-muted">{getValue()}</span>,
+    },
+    {
+      accessorKey: 'filled_at',
+      header: 'Date',
+      cell: ({ getValue }) => <span className="text-sm">{formatDate(getValue())}</span>,
+    },
+  ];
+
+  const expenseColumns: ColumnDef<any, any>[] = [
+    {
+      accessorKey: 'expense_type',
       header: 'Category',
       cell: ({ getValue }) => {
         const cat = getValue() as string;
-        const variant = cat === 'Fuel' ? 'info' : cat === 'Maintenance' ? 'warning' : cat === 'Tolls' ? 'success' : 'neutral';
+        const variant = cat === 'Toll' ? 'success' : cat === 'Insurance' ? 'warning' : 'neutral';
         return <StatusBadge status={cat} variant={variant} />;
       },
     },
     {
       accessorKey: 'description',
       header: 'Description',
-      cell: ({ getValue }) => <span className="text-sm">{getValue()}</span>,
+      cell: ({ getValue }) => <span className="text-sm">{getValue() || '—'}</span>,
     },
     {
       accessorKey: 'amount',
@@ -58,82 +115,95 @@ export default function FuelExpensesPage() {
       cell: ({ getValue }) => <span className="font-semibold">{formatCurrency(getValue())}</span>,
     },
     {
-      accessorKey: 'date',
-      header: 'Date',
-      cell: ({ getValue }) => formatDate(getValue()),
+      accessorKey: 'payment_method',
+      header: 'Payment',
+      cell: ({ getValue }) => <span className="text-sm text-text-muted">{getValue()}</span>,
     },
     {
-      accessorKey: 'vehicleName',
-      header: 'Vehicle',
-      cell: ({ getValue }) => getValue() || <span className="text-text-muted">—</span>,
+      accessorKey: 'expense_date',
+      header: 'Date',
+      cell: ({ getValue }) => <span className="text-sm">{formatDate(getValue())}</span>,
     },
   ];
 
-  const tabs: ExpenseCategory[] = ['All', 'Fuel', 'Maintenance', 'Tolls', 'Insurance', 'Other'];
+  const tabs: ActiveTab[] = ['Fuel', 'Expenses'];
 
   return (
     <div className="animate-fade-in">
-      <PageHeader
-        title="Fuel & Expenses"
-        subtitle="Track fuel consumption and operational costs"
-        icon={Fuel}
-      />
+      <div className="flex items-center justify-between mb-6">
+        <PageHeader
+          title="Fuel & Expenses"
+          subtitle="Track fuel consumption and operational costs"
+          icon={Fuel}
+        />
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsFuelModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-bg-card border border-border-glass rounded-xl hover:bg-bg-elevated transition-colors"
+          >
+            <Fuel className="h-4 w-4" /> Log Fuel
+          </button>
+          <button
+            onClick={() => setIsExpenseModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-primary text-bg rounded-xl hover:bg-primary/90 transition-colors"
+          >
+            <Plus className="h-4 w-4" /> Log Expense
+          </button>
+        </div>
+      </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <StatCard label="Total Fuel Cost" value={formatCurrency(summary.totalFuelCost)} change={6.8} changeLabel="vs last year" icon={Fuel} />
-        <StatCard label="Avg Cost/KM" value={`$${summary.avgCostPerKm}`} change={-1.2} changeLabel="vs last month" icon={DollarSign} iconColor="text-emerald-600" iconBg="bg-emerald-50" />
-        <StatCard label="Operational Cost" value={formatCurrency(summary.operationalCost)} change={3.5} changeLabel="vs last quarter" icon={TrendingUp} iconColor="text-amber-600" iconBg="bg-amber-50" />
-        <StatCard label="ROI" value={`${summary.roi}%`} change={2.1} changeLabel="vs last quarter" icon={PieIcon} iconColor="text-purple-600" iconBg="bg-purple-50" />
+        <StatCard label="Total Fuel Cost" value={fuelSummary ? formatCurrency(fuelSummary.total_fuel_cost) : '—'} icon={Fuel} />
+        <StatCard label="Avg Price / Liter" value={fuelSummary ? `₹${fuelSummary.average_fuel_price?.toFixed(2)}` : '—'} icon={DollarSign} iconColor="text-emerald-600" iconBg="bg-emerald-50" />
+        <StatCard label="Total Operational Cost" value={expenseSummary ? formatCurrency(expenseSummary.total_operational_cost) : '—'} icon={TrendingUp} iconColor="text-amber-600" iconBg="bg-amber-50" />
+        <StatCard label="Total Expenses" value={expenseSummary ? formatCurrency(expenseSummary.total_expenses) : '—'} icon={PieIcon} iconColor="text-purple-600" iconBg="bg-purple-50" />
       </div>
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-        <ChartCard title="Monthly Fuel Cost" subtitle="Year-to-date spending">
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={monthlyFuelCost} barSize={36}>
+        <ChartCard title="Fuel Log History" subtitle="Recent fill-ups">
+          <ResponsiveContainer width="100%" height={240}>
+            <BarChart data={fuelLogs.slice(0, 10)} barSize={28}>
               <defs>
                 <linearGradient id="gradBarFuel" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#8A8A93" stopOpacity={1} />
-                  <stop offset="100%" stopColor="#8A8A93" stopOpacity={0.1} />
+                  <stop offset="0%" stopColor="#F5F5F7" stopOpacity={1} />
+                  <stop offset="100%" stopColor="#F5F5F7" stopOpacity={0.1} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-              <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8A8A93' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 12, fill: '#8A8A93' }} axisLine={false} tickLine={false} />
+              <XAxis dataKey="fuel_type" tick={{ fontSize: 11, fill: '#8A8A93' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: '#8A8A93' }} axisLine={false} tickLine={false} />
               <Tooltip
-                contentStyle={{ backgroundColor: '#141418', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '16px', fontSize: '13px', color: '#F5F5F7', boxShadow: '0 8px 32px rgba(0,0,0,0.45)' }}
-                itemStyle={{ color: '#F5F5F7' }}
+                contentStyle={{ backgroundColor: '#141418', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '12px', fontSize: '12px', color: '#F5F5F7' }}
                 formatter={(value: any) => [formatCurrency(value), 'Cost']}
-                cursor={{ fill: 'rgba(255,255,255,0.03)' }}
               />
-              <Bar dataKey="cost" fill="url(#gradBarFuel)" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="total_cost" fill="url(#gradBarFuel)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Cost Breakdown" subtitle="By category">
-          <ResponsiveContainer width="100%" height={280}>
+        <ChartCard title="Expense Breakdown" subtitle="By category">
+          <ResponsiveContainer width="100%" height={240}>
             <PieChart>
               <Pie
                 data={costBreakdown}
                 cx="50%"
                 cy="50%"
-                innerRadius={60}
-                outerRadius={100}
+                innerRadius={55}
+                outerRadius={90}
                 paddingAngle={3}
                 dataKey="value"
                 label={({ name, percent }: any) => `${name} ${(percent * 100).toFixed(0)}%`}
                 labelLine={false}
               >
-                {costBreakdown.map((entry, i) => {
-                  const fills = ['#F5F5F7', '#8A8A93', '#5A5A63', '#282830', '#1C1C22'];
+                {costBreakdown.map((_entry, i) => {
+                  const fills = ['#F5F5F7', '#8A8A93', '#5A5A63', '#3ECF8E', '#F0555A'];
                   return <Cell key={i} fill={fills[i % fills.length]} />;
                 })}
               </Pie>
               <Tooltip
-                contentStyle={{ backgroundColor: '#141418', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '16px', fontSize: '13px', color: '#F5F5F7', boxShadow: '0 8px 32px rgba(0,0,0,0.45)' }}
-                itemStyle={{ color: '#F5F5F7' }}
+                contentStyle={{ backgroundColor: '#141418', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '12px', fontSize: '12px', color: '#F5F5F7' }}
                 formatter={(value: any) => [formatCurrency(value)]}
               />
             </PieChart>
@@ -141,16 +211,14 @@ export default function FuelExpensesPage() {
         </ChartCard>
       </div>
 
-      {/* Category Tabs */}
+      {/* Tab Switcher */}
       <div className="flex items-center gap-1 mb-4 border-b border-border-glass">
         {tabs.map((tab) => (
           <button
             key={tab}
-            onClick={() => setCategoryFilter(tab)}
+            onClick={() => setActiveTab(tab)}
             className={`px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px ${
-              categoryFilter === tab
-                ? 'border-white text-text-primary'
-                : 'border-transparent text-text-muted hover:text-text-primary'
+              activeTab === tab ? 'border-white text-text-primary' : 'border-transparent text-text-muted hover:text-text-primary'
             }`}
           >
             {tab}
@@ -159,10 +227,18 @@ export default function FuelExpensesPage() {
       </div>
 
       <div className="mb-4">
-        <SearchInput value={search} onChange={setSearch} placeholder="Search expenses..." className="w-full sm:w-72" />
+        <SearchInput value={search} onChange={setSearch} placeholder={`Search ${activeTab.toLowerCase()}...`} className="w-full sm:w-72" />
       </div>
 
-      <DataTable data={filteredExpenses} columns={columns} searchQuery={search} />
+      {activeTab === 'Fuel' ? (
+        <DataTable data={fuelLogs} columns={fuelColumns} searchQuery={search} isLoading={fuelLoading} />
+      ) : (
+        <DataTable data={expenses} columns={expenseColumns} searchQuery={search} isLoading={expLoading} />
+      )}
+
+      {/* Modals */}
+      <FuelFormModal isOpen={isFuelModalOpen} onClose={() => setIsFuelModalOpen(false)} />
+      <ExpenseFormModal isOpen={isExpenseModalOpen} onClose={() => setIsExpenseModalOpen(false)} />
     </div>
   );
 }

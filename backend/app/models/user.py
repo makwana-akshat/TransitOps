@@ -35,9 +35,9 @@ class User(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
     # Relationships
-    vehicles: Mapped[list["Vehicle"]] = relationship("Vehicle", back_populates="creator")
-    drivers: Mapped[list["Driver"]] = relationship("Driver", back_populates="creator")
-    trips: Mapped[list["Trip"]] = relationship("Trip", back_populates="creator")
-    maintenance_records: Mapped[list["MaintenanceRecord"]] = relationship("MaintenanceRecord", back_populates="creator")
-    fuel_logs: Mapped[list["FuelLog"]] = relationship("FuelLog", back_populates="creator")
-    expenses: Mapped[list["Expense"]] = relationship("Expense", back_populates="creator")
+    vehicles: Mapped[list["Vehicle"]] = relationship("Vehicle", back_populates="creator", foreign_keys="[Vehicle.created_by]")
+    drivers: Mapped[list["Driver"]] = relationship("Driver", back_populates="creator", foreign_keys="[Driver.created_by]")
+    trips: Mapped[list["Trip"]] = relationship("Trip", back_populates="creator", foreign_keys="[Trip.created_by]")
+    maintenance_records: Mapped[list["MaintenanceRecord"]] = relationship("MaintenanceRecord", back_populates="creator", foreign_keys="[MaintenanceRecord.created_by]")
+    fuel_logs: Mapped[list["FuelLog"]] = relationship("FuelLog", back_populates="creator", foreign_keys="[FuelLog.created_by]")
+    expenses: Mapped[list["Expense"]] = relationship("Expense", back_populates="creator", foreign_keys="[Expense.created_by]")

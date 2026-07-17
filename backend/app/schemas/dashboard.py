@@ -5,19 +5,25 @@ from datetime import datetime
 
 class DashboardOverviewResponse(BaseModel):
     activeVehicles: int
+    activeVehiclesChange: float
     availableVehicles: int
+    availableVehiclesChange: float
     vehiclesInMaintenance: int
+    vehiclesInMaintenanceChange: float
     retiredVehicles: int
     
     activeTrips: int
     completedTripsToday: int
+    completedTripsTodayChange: float
     pendingTrips: int
     
     driversOnDuty: int
+    driversOnDutyChange: float
     availableDrivers: int
     suspendedDrivers: int
     
     fleetUtilization: float
+    fleetUtilizationChange: float
     
     totalFuelCost: float
     totalMaintenanceCost: float

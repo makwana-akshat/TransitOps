@@ -94,7 +94,7 @@ class ExpenseService:
         async with self.db.begin_nested():
             record_data = record_in.model_dump(exclude_unset=True)
             record_data["created_by"] = current_user.id
-            record = await self.fuel_repo.create(record_data)
+            record = await self.fuel_repo.create(record_data, commit=False)
             
             await self._adjust_vehicle_fuel(vehicle.id, record.total_cost)
             await self._adjust_trip_fuel(record.trip_id, record.total_cost)
@@ -124,7 +124,7 @@ class ExpenseService:
                 new_cost = round(liters * price, 2)
                 update_data['total_cost'] = new_cost
                 
-            updated_record = await self.fuel_repo.update(record, update_data)
+            updated_record = await self.fuel_repo.update(record, update_data, commit=False)
             
             cost_diff = updated_record.total_cost - old_cost
             
@@ -180,7 +180,7 @@ class ExpenseService:
         async with self.db.begin_nested():
             record_data = record_in.model_dump(exclude_unset=True)
             record_data["created_by"] = current_user.id
-            record = await self.expense_repo.create(record_data)
+            record = await self.expense_repo.create(record_data, commit=False)
             
             await self._adjust_vehicle_expense(vehicle.id, record.expense_type, record.amount)
             await self._adjust_trip_expense(record.trip_id, record.amount)
@@ -201,7 +201,7 @@ class ExpenseService:
             update_data["updated_by"] = current_user.id
             update_data["updated_at"] = datetime.now(timezone.utc)
             
-            updated_record = await self.expense_repo.update(record, update_data)
+            updated_record = await self.expense_repo.update(record, update_data, commit=False)
             
             if 'expense_type' in update_data and old_type != updated_record.expense_type:
                 await self._adjust_vehicle_expense(updated_record.vehicle_id, old_type, -old_amount)

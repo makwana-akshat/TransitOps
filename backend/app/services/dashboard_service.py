@@ -1,4 +1,5 @@
 import time
+from datetime import datetime, timedelta, date
 from typing import Dict, Any, List
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.repositories.analytics_repository import AnalyticsRepository
@@ -37,18 +38,32 @@ class DashboardService:
         if active_vehicles > 0:
             utilization = round((on_trip_vehicles / active_vehicles) * 100, 2)
             
+        target_date = datetime.now().date() - timedelta(days=30)
+        snapshots = await self._get_cached(f"snapshots_{target_date}", self.repo.get_snapshots_for_date, target_date)
+        
+        def calc_change(current, previous):
+            if previous > 0:
+                return round(((current - previous) / previous) * 100, 1)
+            return 100.0 if current > 0 else 0.0
+            
         return DashboardOverviewResponse(
             activeVehicles=active_vehicles,
+            activeVehiclesChange=calc_change(active_vehicles, snapshots.get("active_vehicles", 0)),
             availableVehicles=data["availableVehicles"],
+            availableVehiclesChange=calc_change(data["availableVehicles"], snapshots.get("available_vehicles", 0)),
             vehiclesInMaintenance=data["vehiclesInMaintenance"],
+            vehiclesInMaintenanceChange=calc_change(data["vehiclesInMaintenance"], snapshots.get("vehicles_in_maintenance", 0)),
             retiredVehicles=data["retiredVehicles"],
             activeTrips=data["activeTrips"],
             completedTripsToday=data["completedTripsToday"],
+            completedTripsTodayChange=calc_change(data["completedTripsToday"], snapshots.get("completed_trips_today", 0)),
             pendingTrips=data["pendingTrips"],
             driversOnDuty=data["driversOnDuty"],
+            driversOnDutyChange=calc_change(data["driversOnDuty"], snapshots.get("drivers_on_duty", 0)),
             availableDrivers=data["availableDrivers"],
             suspendedDrivers=data["suspendedDrivers"],
             fleetUtilization=utilization,
+            fleetUtilizationChange=calc_change(utilization, snapshots.get("fleet_utilization", 0)),
             totalFuelCost=data["totalFuelCost"],
             totalMaintenanceCost=data["totalMaintenanceCost"],
             totalOperationalCost=data["totalOperationalCost"]

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
-from app.dependencies.auth import get_current_active_user, require_fleet_manager
+from app.dependencies.auth import get_current_active_user, require_fleet_manager, require_role, Role
 from app.models.user import User
 from app.schemas.vehicle import VehicleCreate, VehicleUpdate, VehicleResponse, VehicleStatusUpdate
 from app.schemas.common import ApiResponse, PaginatedResponse
@@ -14,6 +14,8 @@ from app.services.vehicle_service import VehicleService
 from app.services.maintenance_service import MaintenanceService
 
 router = APIRouter(prefix="/api/vehicles", tags=["Vehicles"])
+
+require_staff = require_role([Role.ADMIN, Role.FLEET_MANAGER, Role.SAFETY_OFFICER, Role.FINANCIAL_ANALYST])
 
 def get_vehicle_service(db: AsyncSession = Depends(get_db)) -> VehicleService:
     return VehicleService(db)

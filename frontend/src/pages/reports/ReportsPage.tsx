@@ -1,20 +1,44 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { ChartCard } from '@/components/ui/ChartCard';
 import { PrimaryButton, SecondaryButton } from '@/components/ui/Button';
 import { BarChart3, Download, FileText } from 'lucide-react';
 import {
-  AreaChart, Area, BarChart, Bar, LineChart, Line,
+  AreaChart, Area, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
 import { formatCurrency } from '@/utils/formatters';
-import reportsData from '@/data/reports.json';
-
-const { fleetUtilization, roiData, fuelEfficiency, maintenanceCost } = reportsData;
+import { exportReport } from '@/api/reports';
+import { useFleetUtilization, useVehicleROI, useFuelEfficiency, useRevenueAnalysis } from '@/hooks/useReports';
 
 export default function ReportsPage() {
-  const handleExport = (format: string) => {
-    alert(`Export as ${format} — this would generate a real file when connected to a backend.`);
+  const [isExporting, setIsExporting] = useState(false);
+
+  const { data: fleetDataRes, isLoading: fleetLoading } = useFleetUtilization();
+  const { data: roiDataRes, isLoading: roiLoading } = useVehicleROI();
+  const { data: fuelDataRes, isLoading: fuelLoading } = useFuelEfficiency();
+  const { data: revDataRes, isLoading: revLoading } = useRevenueAnalysis();
+
+  const fleetUtilization = fleetDataRes?.data || [];
+  const roiData = roiDataRes?.data || [];
+  const fuelEfficiency = fuelDataRes?.data || [];
+  const revenueData = revDataRes?.data || [];
+
+  const handleExport = async (format: string) => {
+    setIsExporting(true);
+    try {
+      const blob = await exportReport(format.toLowerCase(), 'revenue');
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `revenue_report.${format.toLowerCase()}`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (e: any) {
+      alert(`Export failed: ${e.message}`);
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -25,10 +49,10 @@ export default function ReportsPage() {
         icon={BarChart3}
         action={
           <div className="flex gap-2">
-            <SecondaryButton onClick={() => handleExport('CSV')} icon={<Download className="h-4 w-4" />}>
+            <SecondaryButton onClick={() => handleExport('CSV')} disabled={isExporting} icon={<Download className="h-4 w-4" />}>
               Export CSV
             </SecondaryButton>
-            <PrimaryButton onClick={() => handleExport('PDF')} icon={<FileText className="h-4 w-4" />}>
+            <PrimaryButton onClick={() => handleExport('PDF')} disabled={isExporting} icon={<FileText className="h-4 w-4" />}>
               Export PDF
             </PrimaryButton>
           </div>
@@ -36,50 +60,49 @@ export default function ReportsPage() {
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Fleet Utilization */}
-        <ChartCard title="Fleet Utilization" subtitle="Monthly utilization percentage">
+        {/* Fleet Utilization (Per Vehicle) */}
+        <ChartCard title="Fleet Utilization" subtitle="Utilization percentage by vehicle">
           <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={fleetUtilization}>
+            {fleetLoading ? <div className="h-full flex items-center justify-center text-text-muted text-sm">Loading...</div> : (
+            <BarChart data={fleetUtilization} barSize={36}>
               <defs>
                 <linearGradient id="gradUtil" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#F5F5F7" stopOpacity={0.15} />
-                  <stop offset="95%" stopColor="#F5F5F7" stopOpacity={0} />
+                  <stop offset="0%" stopColor="#F5F5F7" stopOpacity={1} />
+                  <stop offset="100%" stopColor="#F5F5F7" stopOpacity={0.1} />
                 </linearGradient>
-                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="3" result="blur" />
-                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                </filter>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-              <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8A8A93' }} axisLine={false} tickLine={false} />
+              <XAxis dataKey="registration_number" tick={{ fontSize: 12, fill: '#8A8A93' }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 12, fill: '#8A8A93' }} axisLine={false} tickLine={false} domain={[0, 100]} />
               <Tooltip
                 contentStyle={{ backgroundColor: '#141418', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '16px', fontSize: '13px', color: '#F5F5F7', boxShadow: '0 8px 32px rgba(0,0,0,0.45)' }}
                 itemStyle={{ color: '#F5F5F7' }}
                 formatter={(value: any) => [`${value}%`, 'Utilization']}
-                cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1, strokeDasharray: '3 3' }}
+                cursor={{ fill: 'rgba(255,255,255,0.03)' }}
               />
-              <Area type="stepAfter" dataKey="utilization" stroke="#F5F5F7" strokeWidth={2} fill="url(#gradUtil)" style={{ filter: 'url(#glow)' }} activeDot={{ r: 5, fill: '#F5F5F7', stroke: '#141418', strokeWidth: 2 }} />
-            </AreaChart>
+              <Bar dataKey="utilization_percentage" fill="url(#gradUtil)" radius={[4, 4, 0, 0]} />
+            </BarChart>
+            )}
           </ResponsiveContainer>
         </ChartCard>
 
-        {/* ROI Analysis */}
-        <ChartCard title="ROI Analysis" subtitle="Revenue vs Cost comparison">
+        {/* ROI Analysis (Per Vehicle) */}
+        <ChartCard title="Vehicle ROI" subtitle="Revenue vs Total Cost (by Vehicle)">
           <ResponsiveContainer width="100%" height={300}>
+            {roiLoading ? <div className="h-full flex items-center justify-center text-text-muted text-sm">Loading...</div> : (
             <BarChart data={roiData}>
               <defs>
                 <linearGradient id="gradBarRev" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#F5F5F7" stopOpacity={1} />
-                  <stop offset="100%" stopColor="#F5F5F7" stopOpacity={0.1} />
+                  <stop offset="0%" stopColor="#3ECF8E" stopOpacity={1} />
+                  <stop offset="100%" stopColor="#3ECF8E" stopOpacity={0.1} />
                 </linearGradient>
                 <linearGradient id="gradBarCost" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#5A5A63" stopOpacity={1} />
-                  <stop offset="100%" stopColor="#5A5A63" stopOpacity={0.1} />
+                  <stop offset="0%" stopColor="#E04F5E" stopOpacity={1} />
+                  <stop offset="100%" stopColor="#E04F5E" stopOpacity={0.1} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-              <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8A8A93' }} axisLine={false} tickLine={false} />
+              <XAxis dataKey="registration_number" tick={{ fontSize: 12, fill: '#8A8A93' }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 12, fill: '#8A8A93' }} axisLine={false} tickLine={false} />
               <Tooltip
                 contentStyle={{ backgroundColor: '#141418', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '16px', fontSize: '13px', color: '#F5F5F7', boxShadow: '0 8px 32px rgba(0,0,0,0.45)' }}
@@ -89,56 +112,69 @@ export default function ReportsPage() {
               />
               <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '12px', color: '#8A8A93' }} />
               <Bar dataKey="revenue" name="Revenue" fill="url(#gradBarRev)" radius={[2, 2, 0, 0]} />
-              <Bar dataKey="cost" name="Cost" fill="url(#gradBarCost)" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="maintenance_cost" name="Maintenance" stackId="a" fill="url(#gradBarCost)" radius={[0, 0, 0, 0]} />
+              <Bar dataKey="fuel_cost" name="Fuel" stackId="a" fill="#E04F5E" fillOpacity={0.7} radius={[0, 0, 0, 0]} />
+              <Bar dataKey="other_expenses" name="Expenses" stackId="a" fill="#E04F5E" fillOpacity={0.4} radius={[2, 2, 0, 0]} />
             </BarChart>
+            )}
           </ResponsiveContainer>
         </ChartCard>
 
-        {/* Fuel Efficiency */}
-        <ChartCard title="Fuel Efficiency" subtitle="Average km per liter">
+        {/* Fuel Efficiency (Per Vehicle) */}
+        <ChartCard title="Fuel Efficiency" subtitle="Km per liter by vehicle">
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={fuelEfficiency}>
+            {fuelLoading ? <div className="h-full flex items-center justify-center text-text-muted text-sm">Loading...</div> : (
+            <BarChart data={fuelEfficiency} barSize={36}>
               <defs>
-                <filter id="glowGreen" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="3" result="blur" />
-                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                </filter>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-              <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8A8A93' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 12, fill: '#8A8A93' }} axisLine={false} tickLine={false} domain={[4, 6]} />
-              <Tooltip
-                contentStyle={{ backgroundColor: '#141418', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '16px', fontSize: '13px', color: '#F5F5F7', boxShadow: '0 8px 32px rgba(0,0,0,0.45)' }}
-                itemStyle={{ color: '#F5F5F7' }}
-                formatter={(value: any) => [`${value} km/L`, 'Efficiency']}
-                cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1, strokeDasharray: '3 3' }}
-              />
-              <Line type="stepAfter" dataKey="kmPerLiter" stroke="#3ECF8E" strokeWidth={2} style={{ filter: 'url(#glowGreen)' }} dot={false} activeDot={{ r: 5, fill: '#3ECF8E', stroke: '#141418', strokeWidth: 2 }} />
-            </LineChart>
-          </ResponsiveContainer>
-        </ChartCard>
-
-        {/* Maintenance Cost */}
-        <ChartCard title="Maintenance Cost" subtitle="Monthly maintenance spending">
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={maintenanceCost}>
-              <defs>
-                <linearGradient id="gradBarMaint" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#8A8A93" stopOpacity={1} />
-                  <stop offset="100%" stopColor="#8A8A93" stopOpacity={0.1} />
+                <linearGradient id="gradFuel" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#3B82F6" stopOpacity={1} />
+                  <stop offset="100%" stopColor="#3B82F6" stopOpacity={0.1} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-              <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8A8A93' }} axisLine={false} tickLine={false} />
+              <XAxis dataKey="registration_number" tick={{ fontSize: 12, fill: '#8A8A93' }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 12, fill: '#8A8A93' }} axisLine={false} tickLine={false} />
               <Tooltip
                 contentStyle={{ backgroundColor: '#141418', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '16px', fontSize: '13px', color: '#F5F5F7', boxShadow: '0 8px 32px rgba(0,0,0,0.45)' }}
                 itemStyle={{ color: '#F5F5F7' }}
-                formatter={(value: any) => [formatCurrency(value), 'Cost']}
+                formatter={(value: any) => [`${value} km/L`, 'Efficiency']}
                 cursor={{ fill: 'rgba(255,255,255,0.03)' }}
               />
-              <Bar dataKey="cost" fill="url(#gradBarMaint)" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="km_per_liter" fill="url(#gradFuel)" radius={[4, 4, 0, 0]} />
             </BarChart>
+            )}
+          </ResponsiveContainer>
+        </ChartCard>
+
+        {/* Revenue vs Cost Analysis (Over Time) */}
+        <ChartCard title="Company Revenue Analysis" subtitle="Monthly Revenue vs Expenses">
+          <ResponsiveContainer width="100%" height={300}>
+            {revLoading ? <div className="h-full flex items-center justify-center text-text-muted text-sm">Loading...</div> : (
+            <AreaChart data={revenueData}>
+              <defs>
+                <linearGradient id="gradRev" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#3ECF8E" stopOpacity={0.15} />
+                  <stop offset="95%" stopColor="#3ECF8E" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="gradExp" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#E04F5E" stopOpacity={0.15} />
+                  <stop offset="95%" stopColor="#E04F5E" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+              <XAxis dataKey="period" tick={{ fontSize: 12, fill: '#8A8A93' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 12, fill: '#8A8A93' }} axisLine={false} tickLine={false} />
+              <Tooltip
+                contentStyle={{ backgroundColor: '#141418', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '16px', fontSize: '13px', color: '#F5F5F7', boxShadow: '0 8px 32px rgba(0,0,0,0.45)' }}
+                itemStyle={{ color: '#F5F5F7' }}
+                formatter={(value: any) => [formatCurrency(value)]}
+                cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1, strokeDasharray: '3 3' }}
+              />
+              <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '12px', color: '#8A8A93' }} />
+              <Area type="monotone" name="Revenue" dataKey="revenue" stroke="#3ECF8E" strokeWidth={2} fill="url(#gradRev)" />
+              <Area type="monotone" name="Expenses" dataKey="expenses" stroke="#E04F5E" strokeWidth={2} fill="url(#gradExp)" />
+            </AreaChart>
+            )}
           </ResponsiveContainer>
         </ChartCard>
       </div>

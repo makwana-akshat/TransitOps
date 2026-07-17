@@ -20,8 +20,9 @@ def verify_clerk_token(token: str) -> dict:
             token,
             signing_key.key,
             algorithms=["RS256"],
-            audience=settings.clerk_jwt_audience,
+            audience=settings.clerk_jwt_audience if settings.clerk_jwt_audience else None,
             issuer=settings.clerk_jwt_issuer,
+            options={"verify_aud": False}
         )
         return data
     except jwt.exceptions.PyJWKClientError as e:

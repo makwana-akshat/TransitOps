@@ -25,6 +25,14 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.models.base import Base
+from app.models.vehicle import Vehicle
+from app.models.driver import Driver
+from app.models.trip import Trip
+from app.models.maintenance import MaintenanceRecord
+from app.models.expense import FuelLog, Expense
+from app.models.user import User
+from app.models.snapshot import DailySnapshot
+
 from app.core.config import settings
 
 target_metadata = Base.metadata

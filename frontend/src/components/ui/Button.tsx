@@ -1,5 +1,6 @@
 import React from 'react';
 import { cn } from '@/utils/cn';
+import { ClickSpark } from './ClickSpark';
 
 interface PillButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children?: React.ReactNode;
@@ -8,21 +9,30 @@ interface PillButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> 
 }
 
 export function PillButton({ children, className, variant = 'primary', icon, ...props }: PillButtonProps) {
+  const isPrimary = variant === 'primary';
   return (
-    <button
-      className={cn(
-        'inline-flex items-center justify-center gap-2 font-medium rounded-full px-4 py-2 text-sm',
-        'transition-all duration-200 active:scale-[0.98]',
-        'disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100',
-        variant === 'primary' && 'bg-text-primary text-bg hover:bg-white',
-        variant === 'outline' && 'border border-border-glass text-text-primary bg-transparent hover:bg-white/5',
-        className
-      )}
-      {...props}
+    <ClickSpark 
+      sparkColor={isPrimary ? "#3ECF8E" : "#8A8A93"} 
+      sparkSize={6} 
+      sparkRadius={20} 
+      sparkCount={6}
+      duration={500}
+      className={className}
     >
-      {icon}
-      {children}
-    </button>
+      <button
+        className={cn(
+          'inline-flex items-center justify-center gap-2 font-medium rounded-full px-4 py-2 text-sm w-full h-full',
+          'transition-all duration-200 active:scale-[0.98]',
+          'disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100',
+          isPrimary && 'bg-text-primary text-bg hover:bg-white',
+          variant === 'outline' && 'border border-border-glass text-text-primary bg-transparent hover:bg-white/5'
+        )}
+        {...props}
+      >
+        {icon}
+        {children}
+      </button>
+    </ClickSpark>
   );
 }
 

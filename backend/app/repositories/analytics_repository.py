@@ -1,6 +1,6 @@
-from sqlalchemy import select, func, desc, extract
+from sqlalchemy import select, func, desc, extract, cast, Date
 from sqlalchemy.ext.asyncio import AsyncSession
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date
 import asyncio
 
 from app.models.vehicle import Vehicle
@@ -15,46 +15,41 @@ class AnalyticsRepository:
         self.db = db
         
     async def get_overview(self):
-        # Use concurrent execution for speed
-        queries = [
-            self.db.execute(select(func.count(Vehicle.id)).where(Vehicle.status != VehicleStatus.RETIRED, Vehicle.deleted_at.is_(None))),
-            self.db.execute(select(func.count(Vehicle.id)).where(Vehicle.status == VehicleStatus.AVAILABLE, Vehicle.deleted_at.is_(None))),
-            self.db.execute(select(func.count(Vehicle.id)).where(Vehicle.status == VehicleStatus.IN_SHOP, Vehicle.deleted_at.is_(None))),
-            self.db.execute(select(func.count(Vehicle.id)).where(Vehicle.status == VehicleStatus.RETIRED, Vehicle.deleted_at.is_(None))),
-            self.db.execute(select(func.count(Vehicle.id)).where(Vehicle.status == VehicleStatus.ON_TRIP, Vehicle.deleted_at.is_(None))),
-            
-            self.db.execute(select(func.count(Trip.id)).where(Trip.status == TripStatus.DISPATCHED)),
-            self.db.execute(select(func.count(Trip.id)).where(Trip.status == TripStatus.COMPLETED, func.date(Trip.actual_end) == datetime.now(timezone.utc).date())),
-            self.db.execute(select(func.count(Trip.id)).where(Trip.status == TripStatus.DRAFT)),
-            
-            self.db.execute(select(func.count(Driver.id)).where(Driver.status == DriverStatus.ON_TRIP, Driver.deleted_at.is_(None))),
-            self.db.execute(select(func.count(Driver.id)).where(Driver.status == DriverStatus.AVAILABLE, Driver.deleted_at.is_(None))),
-            self.db.execute(select(func.count(Driver.id)).where(Driver.status == DriverStatus.SUSPENDED, Driver.deleted_at.is_(None))),
-            
-            self.db.execute(select(
-                func.sum(Vehicle.total_fuel_cost).label("fuel"),
-                func.sum(Vehicle.total_maintenance_cost).label("maintenance"),
-                func.sum(Vehicle.total_operational_cost).label("operational")
-            ).where(Vehicle.deleted_at.is_(None)))
-        ]
+        active_vehicles = await self.db.execute(select(func.count(Vehicle.id)).where(Vehicle.status != VehicleStatus.RETIRED, Vehicle.deleted_at.is_(None)))
+        available_vehicles = await self.db.execute(select(func.count(Vehicle.id)).where(Vehicle.status == VehicleStatus.AVAILABLE, Vehicle.deleted_at.is_(None)))
+        vehicles_in_maintenance = await self.db.execute(select(func.count(Vehicle.id)).where(Vehicle.status == VehicleStatus.IN_SHOP, Vehicle.deleted_at.is_(None)))
+        retired_vehicles = await self.db.execute(select(func.count(Vehicle.id)).where(Vehicle.status == VehicleStatus.RETIRED, Vehicle.deleted_at.is_(None)))
+        on_trip_vehicles = await self.db.execute(select(func.count(Vehicle.id)).where(Vehicle.status == VehicleStatus.ON_TRIP, Vehicle.deleted_at.is_(None)))
         
-        results = await asyncio.gather(*queries)
+        active_trips = await self.db.execute(select(func.count(Trip.id)).where(Trip.status == TripStatus.DISPATCHED))
+        completed_trips_today = await self.db.execute(select(func.count(Trip.id)).where(Trip.status == TripStatus.COMPLETED, cast(Trip.actual_end, Date) == datetime.now(timezone.utc).date()))
+        pending_trips = await self.db.execute(select(func.count(Trip.id)).where(Trip.status == TripStatus.DRAFT))
         
-        costs = results[11].first()
+        drivers_on_duty = await self.db.execute(select(func.count(Driver.id)).where(Driver.status == DriverStatus.ON_TRIP, Driver.deleted_at.is_(None)))
+        available_drivers = await self.db.execute(select(func.count(Driver.id)).where(Driver.status == DriverStatus.AVAILABLE, Driver.deleted_at.is_(None)))
+        suspended_drivers = await self.db.execute(select(func.count(Driver.id)).where(Driver.status == DriverStatus.SUSPENDED, Driver.deleted_at.is_(None)))
+        
+        costs_res = await self.db.execute(select(
+            func.sum(Vehicle.total_fuel_cost).label("fuel"),
+            func.sum(Vehicle.total_maintenance_cost).label("maintenance"),
+            func.sum(Vehicle.total_operational_cost).label("operational")
+        ).where(Vehicle.deleted_at.is_(None)))
+        
+        costs = costs_res.first()
         return {
-            "activeVehicles": results[0].scalar() or 0,
-            "availableVehicles": results[1].scalar() or 0,
-            "vehiclesInMaintenance": results[2].scalar() or 0,
-            "retiredVehicles": results[3].scalar() or 0,
-            "onTripVehicles": results[4].scalar() or 0,
+            "activeVehicles": active_vehicles.scalar() or 0,
+            "availableVehicles": available_vehicles.scalar() or 0,
+            "vehiclesInMaintenance": vehicles_in_maintenance.scalar() or 0,
+            "retiredVehicles": retired_vehicles.scalar() or 0,
+            "onTripVehicles": on_trip_vehicles.scalar() or 0,
             
-            "activeTrips": results[5].scalar() or 0,
-            "completedTripsToday": results[6].scalar() or 0,
-            "pendingTrips": results[7].scalar() or 0,
+            "activeTrips": active_trips.scalar() or 0,
+            "completedTripsToday": completed_trips_today.scalar() or 0,
+            "pendingTrips": pending_trips.scalar() or 0,
             
-            "driversOnDuty": results[8].scalar() or 0,
-            "availableDrivers": results[9].scalar() or 0,
-            "suspendedDrivers": results[10].scalar() or 0,
+            "driversOnDuty": drivers_on_duty.scalar() or 0,
+            "availableDrivers": available_drivers.scalar() or 0,
+            "suspendedDrivers": suspended_drivers.scalar() or 0,
             
             "totalFuelCost": float(costs.fuel or 0.0) if costs else 0.0,
             "totalMaintenanceCost": float(costs.maintenance or 0.0) if costs else 0.0,
@@ -65,19 +60,17 @@ class AnalyticsRepository:
         recent = []
         
         v_query = select(Vehicle.id, Vehicle.registration_number, Vehicle.created_at).order_by(desc(Vehicle.created_at)).limit(limit)
-        d_query = select(Driver.id, Driver.first_name, Driver.last_name, Driver.created_at).order_by(desc(Driver.created_at)).limit(limit)
+        d_query = select(Driver.id, Driver.full_name, Driver.created_at).order_by(desc(Driver.created_at)).limit(limit)
         t_query = select(Trip.id, Trip.trip_number, Trip.created_at).order_by(desc(Trip.created_at)).limit(limit)
         
-        v_res, d_res, t_res = await asyncio.gather(
-            self.db.execute(v_query),
-            self.db.execute(d_query),
-            self.db.execute(t_query)
-        )
+        v_res = await self.db.execute(v_query)
+        d_res = await self.db.execute(d_query)
+        t_res = await self.db.execute(t_query)
         
         for v in v_res.all():
             recent.append({"id": v.id, "activity_type": "Vehicle Added", "description": f"Vehicle {v.registration_number} added", "created_at": v.created_at})
         for d in d_res.all():
-            recent.append({"id": d.id, "activity_type": "Driver Added", "description": f"Driver {d.first_name} {d.last_name} added", "created_at": d.created_at})
+            recent.append({"id": d.id, "activity_type": "Driver Added", "description": f"Driver {d.full_name} added", "created_at": d.created_at})
         for t in t_res.all():
             recent.append({"id": t.id, "activity_type": "Trip Created", "description": f"Trip {t.trip_number} scheduled", "created_at": t.created_at})
             
@@ -168,10 +161,8 @@ class AnalyticsRepository:
     async def get_top_drivers(self):
         query = select(
             Driver.id,
-            Driver.first_name,
-            Driver.last_name,
+            Driver.full_name,
             Driver.safety_score,
-            Driver.total_distance,
             func.count(Trip.id).label('trips_completed')
         ).outerjoin(
             Trip, (Driver.id == Trip.driver_id) & (Trip.status == TripStatus.COMPLETED)
@@ -184,9 +175,9 @@ class AnalyticsRepository:
         result = await self.db.execute(query)
         return [{
             "driver_id": row.id,
-            "name": f"{row.first_name} {row.last_name}",
+            "name": row.full_name,
             "safety_score": row.safety_score or 0.0,
-            "distance": row.total_distance or 0.0,
+            "distance": 0.0,
             "trips_completed": row.trips_completed
         } for row in result.all()]
 
@@ -210,19 +201,24 @@ class AnalyticsRepository:
         
         v_query = select(Vehicle).where(Vehicle.registration_number.ilike(search_pattern), Vehicle.deleted_at.is_(None)).limit(5)
         d_query = select(Driver).where(
-            (Driver.first_name.ilike(search_pattern) | Driver.last_name.ilike(search_pattern)), 
+            Driver.full_name.ilike(search_pattern), 
             Driver.deleted_at.is_(None)
         ).limit(5)
         t_query = select(Trip).where(Trip.trip_number.ilike(search_pattern)).limit(5)
         
-        v_res, d_res, t_res = await asyncio.gather(
-            self.db.execute(v_query),
-            self.db.execute(d_query),
-            self.db.execute(t_query)
-        )
+        v_res = await self.db.execute(v_query)
+        d_res = await self.db.execute(d_query)
+        t_res = await self.db.execute(t_query)
         
         return {
             "matchingVehicles": [{"id": v.id, "type": "VEHICLE", "title": v.registration_number, "subtitle": f"Status: {v.status.value}"} for v in v_res.scalars().all()],
-            "matchingDrivers": [{"id": d.id, "type": "DRIVER", "title": f"{d.first_name} {d.last_name}", "subtitle": f"Status: {d.status.value}"} for d in d_res.scalars().all()],
+            "matchingDrivers": [{"id": d.id, "type": "DRIVER", "title": d.full_name, "subtitle": f"Status: {d.status.value}"} for d in d_res.scalars().all()],
             "matchingTrips": [{"id": t.id, "type": "TRIP", "title": t.trip_number, "subtitle": f"Status: {t.status.value}"} for t in t_res.scalars().all()],
         }
+
+    async def get_snapshots_for_date(self, target_date: date):
+        from app.models.snapshot import DailySnapshot
+        query = select(DailySnapshot).where(DailySnapshot.date == target_date)
+        result = await self.db.execute(query)
+        snapshots = result.scalars().all()
+        return {s.metric_name: s.value for s in snapshots}

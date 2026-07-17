@@ -52,7 +52,7 @@ class MaintenanceService:
         async with self.db.begin_nested():
             record_data = record_in.model_dump(exclude_unset=True)
             record_data["created_by"] = current_user.id
-            record = await self.repo.create(record_data)
+            record = await self.repo.create(record_data, commit=False)
             
             vehicle.status = VehicleStatus.IN_SHOP
             self.db.add(vehicle)

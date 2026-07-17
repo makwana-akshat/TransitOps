@@ -42,16 +42,18 @@ class DriverService:
             if existing and existing.id != driver.id:
                 raise HTTPException(status_code=409, detail="Email already exists")
                 
-        if driver_in.status and driver_in.status != driver.status:
-            self._validate_status_transition(driver, driver_in.status, current_user)
-
         update_data = driver_in.model_dump(exclude_unset=True)
+
+        if "status" in update_data and update_data["status"] != driver.status:
+            expiry = update_data.get("license_expiry", driver.license_expiry)
+            self._validate_status_transition(driver, update_data["status"], current_user, expiry)
+
         return await self.repo.update(driver, update_data)
 
     async def update_status(self, driver_id: uuid.UUID, status_in: DriverStatusUpdate, current_user: User):
         driver = await self.get_driver_by_id(driver_id)
         if status_in.status != driver.status:
-            self._validate_status_transition(driver, status_in.status, current_user)
+            self._validate_status_transition(driver, status_in.status, current_user, driver.license_expiry)
         return await self.repo.update(driver, {"status": status_in.status})
 
     async def update_safety_score(self, driver_id: uuid.UUID, score_in: DriverSafetyScoreUpdate):
@@ -91,7 +93,7 @@ class DriverService:
             low_safety_scores=low_safety
         )
 
-    def _validate_status_transition(self, current_driver, new_status: DriverStatus, current_user: User):
+    def _validate_status_transition(self, current_driver, new_status: DriverStatus, current_user: User, expiry_date=None):
         if current_driver.status == DriverStatus.ON_TRIP and new_status == DriverStatus.SUSPENDED:
             raise HTTPException(status_code=400, detail="Cannot suspend a driver who is on an active trip")
             
@@ -100,5 +102,5 @@ class DriverService:
                 raise HTTPException(status_code=403, detail="Suspended drivers require administrator action to become available")
             
         if new_status in [DriverStatus.AVAILABLE, DriverStatus.ON_TRIP]:
-            if not current_driver.license_expiry or current_driver.license_expiry < datetime.now(timezone.utc).date():
+            if not expiry_date or expiry_date < datetime.now(timezone.utc).date():
                 raise HTTPException(status_code=400, detail="Drivers with expired licenses cannot be set to Available or On Trip")

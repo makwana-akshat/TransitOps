@@ -8,7 +8,7 @@ from app.enums.fleet import DriverStatus
 class DriverBase(BaseModel):
     employee_code: str = Field(..., description="Unique employee code")
     full_name: str = Field(..., min_length=1)
-    email: EmailStr
+    email: Optional[EmailStr] = None
     phone: str = Field(..., min_length=5)
     license_number: str = Field(...)
     license_category: Optional[str] = None

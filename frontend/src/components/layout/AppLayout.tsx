@@ -7,8 +7,10 @@ import { TopNavbar } from './TopNavbar';
 import { AppBackground } from './AppBackground';
 import TargetCursor from '@/components/ui/TargetCursor';
 import { TourProvider } from '@/contexts/TourContext';
+import { TourOverlay } from '@/components/ui/TourOverlay';
 import { FloatingNavigationDock } from '@/components/ui/FloatingDock';
 import { AnimatePresence } from 'motion/react';
+import { ApiInterceptor } from '@/components/layout/ApiInterceptor';
 
 export function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -28,40 +30,43 @@ export function AppLayout() {
         cursorColorOnTarget="#10b981" 
       />
       <SignedIn>
-        <AppBackground>
-          <div className="flex w-full">
-            <Sidebar 
-              isOpen={sidebarOpen} 
-              onToggle={() => setSidebarOpen(false)} 
-              isDockMode={isDockMode}
-              onDockToggle={() => toggleDockMode(true)}
-            />
-            <div 
-              className={cn(
-                "flex-1 flex flex-col min-h-screen w-full relative z-10 transition-all duration-300",
-                isDockMode ? "lg:ml-20" : "lg:ml-72"
-              )}
-            >
-              <TopNavbar onMenuClick={() => setSidebarOpen(true)} />
-              <main className="flex-1 p-6 lg:p-8">
-                <Outlet />
-              </main>
+        <ApiInterceptor>
+          <AppBackground>
+            <div className="flex w-full">
+              <Sidebar 
+                isOpen={sidebarOpen} 
+                onToggle={() => setSidebarOpen(false)} 
+                isDockMode={isDockMode}
+                onDockToggle={() => toggleDockMode(true)}
+              />
+              <div 
+                className={cn(
+                  "flex-1 flex flex-col min-h-screen w-full relative z-10 transition-all duration-300",
+                  isDockMode ? "lg:ml-20" : "lg:ml-72"
+                )}
+              >
+                <TopNavbar onMenuClick={() => setSidebarOpen(true)} />
+                <main className="flex-1 p-6 lg:p-8">
+                  <Outlet />
+                </main>
+              </div>
+              
+              <AnimatePresence>
+                {isDockMode && (
+                  <FloatingNavigationDock 
+                    navItems={navItems} 
+                    onExpand={() => toggleDockMode(false)} 
+                  />
+                )}
+              </AnimatePresence>
             </div>
-            
-            <AnimatePresence>
-              {isDockMode && (
-                <FloatingNavigationDock 
-                  navItems={navItems} 
-                  onExpand={() => toggleDockMode(false)} 
-                />
-              )}
-            </AnimatePresence>
-          </div>
-        </AppBackground>
+          </AppBackground>
+        </ApiInterceptor>
       </SignedIn>
       <SignedOut>
         <RedirectToSignIn />
       </SignedOut>
+      <TourOverlay />
     </TourProvider>
   );
 }

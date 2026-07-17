@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { UserButton, useUser } from '@clerk/clerk-react';
 import { CircleIconButton } from '@/components/ui/Button';
-import { useTour } from '@/contexts/TourContext';
+import { useTour, TOURS } from '@/contexts/TourContext';
 import SearchComponent from '@/components/ui/animated-glowing-search-bar';
 
 interface TopNavbarProps {
@@ -20,12 +20,17 @@ export function TopNavbar({ onMenuClick }: TopNavbarProps) {
   const { user } = useUser();
   const { startTour } = useTour();
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
+  const helpRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
         setShowNotifications(false);
+      }
+      if (helpRef.current && !helpRef.current.contains(event.target as Node)) {
+        setShowHelp(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -93,8 +98,38 @@ export function TopNavbar({ onMenuClick }: TopNavbarProps) {
                 </div>
               )}
             </div>
-            
-            <CircleIconButton id="tour-help" onClick={startTour} icon={<HelpCircle className="h-[18px] w-[18px]" />} />
+            {/* Help Dropdown */}
+            <div className="relative" ref={helpRef}>
+              <CircleIconButton 
+                id="tour-help" 
+                icon={<HelpCircle className="h-[18px] w-[18px]" />} 
+                onClick={() => setShowHelp(!showHelp)}
+              />
+
+              {showHelp && (
+                <div className="absolute right-0 top-12 w-64 bg-[#0a0a0d] border border-border-glass shadow-2xl rounded-xl z-50 overflow-hidden animate-scale-in">
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-border-glass/50">
+                    <h3 className="font-semibold text-sm text-text-primary">Guided Tours</h3>
+                  </div>
+                  <div className="p-2 space-y-1">
+                    {Object.values(TOURS).map(tour => (
+                      <div key={tour.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-white/5 transition-colors group">
+                        <span className="text-sm text-text-primary font-medium">{tour.name}</span>
+                        <button 
+                          onClick={() => {
+                            setShowHelp(false);
+                            startTour(tour.id);
+                          }}
+                          className="text-xs bg-white/10 hover:bg-white/20 text-white px-2.5 py-1 rounded transition-colors"
+                        >
+                          Start
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="hidden sm:flex items-center gap-2.5 ml-1 pl-4 border-l border-border-glass">

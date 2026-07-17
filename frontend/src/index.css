@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import "driver.js/dist/driver.css";
+
 
 @theme {
   --font-sans: 'Nunito', ui-sans-serif, system-ui, sans-serif;
@@ -43,6 +43,12 @@
   }
   body {
     @apply bg-bg text-text-primary font-sans antialiased;
+  }
+  
+  /* Fix for select dropdown options in dark mode */
+  select option {
+    background-color: var(--color-bg-card);
+    color: var(--color-text-primary);
   }
 }
 
