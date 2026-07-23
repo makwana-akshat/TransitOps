@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "1db3670028bcac33",
+        "id": "9660a60d019ab776",
         "type": "tabs",
         "children": [
           {
-            "id": "bba925d7ce1d624e",
+            "id": "a158dd02da6232b8",
             "type": "leaf",
             "state": {
               "type": "empty",
@@ -74,7 +74,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "right": {
     "id": "62c9999a109b2037",
@@ -176,6 +177,43 @@
       "bases:Create new base": false
     }
   },
-  "active": "bba925d7ce1d624e",
-  "lastOpenFiles": []
+  "active": "a158dd02da6232b8",
+  "lastOpenFiles": [
+    "2026-07-18.md",
+    "Untitled 1.canvas",
+    "Untitled.canvas",
+    "docs-vault/6. Core Components/Component - Button.md",
+    "Untitled.base",
+    "docs-vault/2. Frontend/Frontend Architecture.md",
+    "docs-vault/2. Frontend/Components.md",
+    "docs-vault/3. Backend/Backend Architecture.md",
+    "docs-vault/2. Frontend/State Management.md",
+    "docs-vault/7. Code Quality & Improvements/Future Scalability Ideas.md",
+    "docs-vault/7. Code Quality & Improvements/Architecture Smells & Tech Debt.md",
+    "docs-vault/7. Code Quality & Improvements",
+    "docs-vault/6. Core Components/Component - Forms & Modals.md",
+    "docs-vault/6. Core Components/Component - ChartCard.md",
+    "docs-vault/6. Core Components/Component - DataTable.md",
+    "docs-vault/6. Core Components",
+    "docs-vault/5. Features/Feature - Expense & Fuel Management.md",
+    "docs-vault/5. Features/Feature - Trip Tracking.md",
+    "docs-vault/5. Features/Feature - Fleet Management.md",
+    "docs-vault/5. Features/Feature - Dashboard & Analytics.md",
+    "docs-vault/5. Features/Feature - Authentication.md",
+    "docs-vault/5. Features",
+    "docs-vault/4. Database/Operations Schema.md",
+    "docs-vault/4. Database/Fleet Management Schema.md",
+    "docs-vault/4. Database/Users & Auth Schema.md",
+    "docs-vault/4. Database/ER Diagram.md",
+    "docs-vault/4. Database/Database Overview.md",
+    "docs-vault/4. Database",
+    "Styling & UI System.md",
+    "docs-vault/1. Project Overview/Architecture.md",
+    "docs-vault/3. Backend/Validation & Error Handling.md",
+    "docs-vault/3. Backend/Authentication & Authorization.md",
+    "docs-vault/3. Backend",
+    "docs-vault/2. Frontend",
+    "docs-vault/1. Project Overview",
+    "docs-vault"
+  ]
 }

@@ -24,7 +24,7 @@ export function SearchInput({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         className="w-full pl-9 pr-4 py-2 text-sm bg-bg-elevated border border-border-glass rounded-xl text-text-primary
-          focus:outline-none focus:border-white/20
+          focus:outline-none focus:border-white/20 focus:ring-2 focus:ring-white/10
           placeholder:text-text-muted transition-all duration-200"
       />
     </div>

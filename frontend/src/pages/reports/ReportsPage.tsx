@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { ChartCard } from '@/components/ui/ChartCard';
 import { PrimaryButton, SecondaryButton } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { BarChart3, Download, FileText } from 'lucide-react';
 import {
   AreaChart, Area, BarChart, Bar,
@@ -62,8 +63,14 @@ export default function ReportsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Fleet Utilization (Per Vehicle) */}
         <ChartCard title="Fleet Utilization" subtitle="Utilization percentage by vehicle">
+          {fleetLoading ? (
+            <div className="h-[300px] flex items-center justify-center text-text-muted text-sm">Loading...</div>
+          ) : fleetUtilization.length === 0 ? (
+            <div className="h-[300px] flex items-center justify-center">
+              <EmptyState title="No Data Available" message="Not enough trip data to calculate utilization." className="py-0" />
+            </div>
+          ) : (
           <ResponsiveContainer width="100%" height={300}>
-            {fleetLoading ? <div className="h-full flex items-center justify-center text-text-muted text-sm">Loading...</div> : (
             <BarChart data={fleetUtilization} barSize={36}>
               <defs>
                 <linearGradient id="gradUtil" x1="0" y1="0" x2="0" y2="1">
@@ -82,14 +89,20 @@ export default function ReportsPage() {
               />
               <Bar dataKey="utilization_percentage" fill="url(#gradUtil)" radius={[4, 4, 0, 0]} />
             </BarChart>
-            )}
           </ResponsiveContainer>
+          )}
         </ChartCard>
 
         {/* ROI Analysis (Per Vehicle) */}
         <ChartCard title="Vehicle ROI" subtitle="Revenue vs Total Cost (by Vehicle)">
+          {roiLoading ? (
+            <div className="h-[300px] flex items-center justify-center text-text-muted text-sm">Loading...</div>
+          ) : roiData.length === 0 ? (
+            <div className="h-[300px] flex items-center justify-center">
+              <EmptyState title="No Data Available" message="Add vehicles and log trips to see ROI." className="py-0" />
+            </div>
+          ) : (
           <ResponsiveContainer width="100%" height={300}>
-            {roiLoading ? <div className="h-full flex items-center justify-center text-text-muted text-sm">Loading...</div> : (
             <BarChart data={roiData}>
               <defs>
                 <linearGradient id="gradBarRev" x1="0" y1="0" x2="0" y2="1">
@@ -116,14 +129,20 @@ export default function ReportsPage() {
               <Bar dataKey="fuel_cost" name="Fuel" stackId="a" fill="#E04F5E" fillOpacity={0.7} radius={[0, 0, 0, 0]} />
               <Bar dataKey="other_expenses" name="Expenses" stackId="a" fill="#E04F5E" fillOpacity={0.4} radius={[2, 2, 0, 0]} />
             </BarChart>
-            )}
           </ResponsiveContainer>
+          )}
         </ChartCard>
 
         {/* Fuel Efficiency (Per Vehicle) */}
         <ChartCard title="Fuel Efficiency" subtitle="Km per liter by vehicle">
+          {fuelLoading ? (
+            <div className="h-[300px] flex items-center justify-center text-text-muted text-sm">Loading...</div>
+          ) : fuelEfficiency.length === 0 ? (
+            <div className="h-[300px] flex items-center justify-center">
+              <EmptyState title="No Data Available" message="Log fuel expenses and trips to see fuel efficiency." className="py-0" />
+            </div>
+          ) : (
           <ResponsiveContainer width="100%" height={300}>
-            {fuelLoading ? <div className="h-full flex items-center justify-center text-text-muted text-sm">Loading...</div> : (
             <BarChart data={fuelEfficiency} barSize={36}>
               <defs>
                 <linearGradient id="gradFuel" x1="0" y1="0" x2="0" y2="1">
@@ -142,14 +161,20 @@ export default function ReportsPage() {
               />
               <Bar dataKey="km_per_liter" fill="url(#gradFuel)" radius={[4, 4, 0, 0]} />
             </BarChart>
-            )}
           </ResponsiveContainer>
+          )}
         </ChartCard>
 
         {/* Revenue vs Cost Analysis (Over Time) */}
         <ChartCard title="Company Revenue Analysis" subtitle="Monthly Revenue vs Expenses">
+          {revLoading ? (
+            <div className="h-[300px] flex items-center justify-center text-text-muted text-sm">Loading...</div>
+          ) : revenueData.length === 0 ? (
+            <div className="h-[300px] flex items-center justify-center">
+              <EmptyState title="No Data Available" message="Complete trips to generate revenue data." className="py-0" />
+            </div>
+          ) : (
           <ResponsiveContainer width="100%" height={300}>
-            {revLoading ? <div className="h-full flex items-center justify-center text-text-muted text-sm">Loading...</div> : (
             <AreaChart data={revenueData}>
               <defs>
                 <linearGradient id="gradRev" x1="0" y1="0" x2="0" y2="1">
@@ -174,8 +199,8 @@ export default function ReportsPage() {
               <Area type="monotone" name="Revenue" dataKey="revenue" stroke="#3ECF8E" strokeWidth={2} fill="url(#gradRev)" />
               <Area type="monotone" name="Expenses" dataKey="expenses" stroke="#E04F5E" strokeWidth={2} fill="url(#gradExp)" />
             </AreaChart>
-            )}
           </ResponsiveContainer>
+          )}
         </ChartCard>
       </div>
     </div>

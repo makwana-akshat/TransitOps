@@ -38,7 +38,7 @@ const typeColors = {
   maintenance: 'red',
 } as const;
 
-const container: any = {
+const container = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
@@ -48,9 +48,9 @@ const container: any = {
   }
 };
 
-const item: any = {
+const item = {
   hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 300, damping: 24 } }
 };
 
 export default function DashboardPage() {
@@ -165,7 +165,7 @@ export default function DashboardPage() {
                     <div className="flex items-center gap-1.5 cursor-help">
                       Fleet Utilization
                       <Tooltip content="Percentage of active vehicles available or on a trip." position="top">
-                        <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-white/10 border border-white/20 text-[9px] font-bold text-text-muted hover:text-text-primary transition-colors">?</span>
+                        <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-white/10 border border-white/20 text-[9px] font-bold text-white/80 hover:text-white transition-colors">?</span>
                       </Tooltip>
                     </div>
                   } 

@@ -26,7 +26,7 @@ class ReportService:
                 "vehicle_id": row.vehicle_id,
                 "registration_number": row.registration_number,
                 "total_trips": row.total_trips,
-                "distance_travelled": row.distance_travelled,
+                "distance_travelled": float(row.distance_travelled or 0),
                 "idle_time_hours": idle_time,
                 "utilization_percentage": utilization
             })

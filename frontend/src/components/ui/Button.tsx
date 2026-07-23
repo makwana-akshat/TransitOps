@@ -23,6 +23,7 @@ export function PillButton({ children, className, variant = 'primary', icon, ...
         className={cn(
           'inline-flex items-center justify-center gap-2 font-medium rounded-full px-4 py-2 text-sm w-full h-full',
           'transition-all duration-200 active:scale-[0.98]',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20',
           'disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100',
           isPrimary && 'bg-text-primary text-bg hover:bg-white',
           variant === 'outline' && 'border border-border-glass text-text-primary bg-transparent hover:bg-white/5'
@@ -52,6 +53,7 @@ export function CircleIconButton({ icon, className, ...props }: CircleIconButton
         'bg-bg-elevated border border-border-glass',
         'text-text-muted hover:text-text-primary hover:bg-white/5 transition-colors',
         'active:scale-[0.98]',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20',
         className
       )}
       {...props}

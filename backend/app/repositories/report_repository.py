@@ -100,7 +100,7 @@ class ReportRepository:
         query = select(
             Vehicle.id,
             Vehicle.registration_number,
-            Vehicle.purchase_price.label("acquisition_cost"),
+            Vehicle.acquisition_cost.label("acquisition_cost"),
             func.sum(Trip.trip_revenue).label("revenue"),
             Vehicle.total_maintenance_cost,
             Vehicle.total_fuel_cost,

@@ -26,7 +26,7 @@ export function FilterBar({ filters, className }: FilterBarProps) {
             value={filter.value}
             onChange={(e) => filter.onChange(e.target.value)}
             className="appearance-none pl-3 pr-8 py-2 text-sm bg-bg-elevated border border-border-glass rounded-xl
-              focus:outline-none focus:border-white/20
+              focus:outline-none focus:border-white/20 focus:ring-2 focus:ring-white/10
               text-text-primary cursor-pointer transition-all duration-200"
           >
             {filter.options.map((opt) => (

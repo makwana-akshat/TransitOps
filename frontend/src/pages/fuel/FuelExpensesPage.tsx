@@ -9,6 +9,7 @@ import { DataTable } from '@/components/ui/DataTable';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { FuelFormModal } from '@/components/forms/FuelFormModal';
 import { ExpenseFormModal } from '@/components/forms/ExpenseFormModal';
+import { EmptyState } from '@/components/ui/EmptyState';
 import {
   Fuel, DollarSign, TrendingUp, PieChart as PieIcon, Plus,
 } from 'lucide-react';
@@ -163,6 +164,11 @@ export default function FuelExpensesPage() {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         <ChartCard title="Fuel Log History" subtitle="Recent fill-ups">
+          {fuelLogs.length === 0 ? (
+            <div className="h-[240px] flex items-center justify-center">
+              <EmptyState title="No Fuel Logs" message="Log fuel to see history." className="py-0" />
+            </div>
+          ) : (
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={fuelLogs.slice(0, 10)} barSize={28}>
               <defs>
@@ -181,9 +187,15 @@ export default function FuelExpensesPage() {
               <Bar dataKey="total_cost" fill="url(#gradBarFuel)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
+          )}
         </ChartCard>
 
         <ChartCard title="Expense Breakdown" subtitle="By category">
+          {costBreakdown.length === 0 ? (
+            <div className="h-[240px] flex items-center justify-center">
+              <EmptyState title="No Expenses" message="Log expenses to see breakdown." className="py-0" />
+            </div>
+          ) : (
           <ResponsiveContainer width="100%" height={240}>
             <PieChart>
               <Pie
@@ -208,6 +220,7 @@ export default function FuelExpensesPage() {
               />
             </PieChart>
           </ResponsiveContainer>
+          )}
         </ChartCard>
       </div>
 
